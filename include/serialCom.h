@@ -18,12 +18,43 @@
 #ifndef SERIAL_COM_H
 #define SERIAL_COM_H
 
-class serialCom {
+#include <Arduino.h>
+
+#include "globalConst.h"
+
+namespace SC {
+
+/*Task that gets executed on the second core*/
+void serialCoreTask(void* pvParameters);
+
+/*
+Receives a pointer to an array and an index.
+Returns the value stored there
+
+WARNING: this function is UNSAFE make sure you aren't
+accessing a value out of bounds
+*/
+uint16_t readValueAt(uint16_t* myArr, uint index);
+
+/*
+Receives a pointer to an array and an index.
+Returns a POINTER to the value stored there
+
+WARNING: this function is UNSAFE make sure you aren't
+accessing a value out of bounds
+*/
+uint16_t* getValueAt(uint16_t* myArr, uint index);
+
+class SerialCom {
    private:
     /* data */
    public:
-    serialCom();
-    ~serialCom();
+    SerialCom(uint16_t* sensorBuffer);
+    ~SerialCom();
+
+    TaskHandle_t mainTask;
+    uint16_t* sensBufferPtr;
 };
+}  // namespace SC
 
 #endif

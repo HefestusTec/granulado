@@ -17,8 +17,58 @@
 
 #include "serialCom.h"
 
-serialCom::serialCom(/* args */) {
+uint16_t SC::readValueAt(uint16_t* myArr, uint index) {
+    return *(myArr + index);
 }
 
-serialCom::~serialCom() {
+uint16_t* SC::getValueAt(uint16_t* myArr, uint index) {
+    return (myArr + index);
+}
+
+void SC::serialCoreTask(void* pvParameters) {
+    Serial.println("serial core");
+    Serial.println(xPortGetCoreID());
+    uint16_t* bufferArrayPtr = ((uint16_t*)pvParameters);
+    for (uint16_t i = 0; i < SENSOR_BUFFER_SIZE; i++) {
+        *SC::getValueAt(bufferArrayPtr, i) = 24;
+    }
+    while (true) {
+        if (Serial.available()) {                           // if there is data comming
+            String command = Serial.readStringUntil('\n');  // read string until newline character
+            Serial.println(command);
+            if (command == "a") {
+                Serial.println("1");
+            } else if (command == "b") {
+                for (uint j = 0; j < SENSOR_BUFFER_SIZE; j++) {
+                    Serial.print(readValueAt(bufferArrayPtr, j));
+
+                    Serial.print(",");
+                }
+                Serial.print("\n");
+            }
+        }
+        vTaskDelay(1);
+    }
+}
+
+/*
+Constructor of the SerialCom class
+Receives a pointer to the sensor array buffer
+and creates a task attached to core 1.
+*/
+SC::SerialCom::SerialCom(uint16_t* sensorBuffer) {
+    sensBufferPtr = sensorBuffer;
+
+    // create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
+    xTaskCreatePinnedToCore(
+        serialCoreTask,       /* Task function. */
+        "SerialMainTask",     /* name of task. */
+        10000,                /* Stack size of task */
+        (void*)sensBufferPtr, /* parameter of the task */
+        1,                    /* priority of the task */
+        &mainTask,            /* Task handle to keep track of created task */
+        1);                   /* pin task to core 0 */
+}
+
+SC::SerialCom::~SerialCom() {
 }

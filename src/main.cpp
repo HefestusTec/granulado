@@ -1,29 +1,27 @@
+// Copyright (C) 2023 Hefestus
+//
+// This file is part of Granulado.
+//
+// Granulado is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Granulado is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
+
 #include <Arduino.h>
 
-#define RND_ARRAY_SIZE 1000
+#include "globalConst.h"
+#include "serialCom.h"
 
-void serialCoreTask(void* pvParameters) {
-    Serial.println("serial core");
-    Serial.println(xPortGetCoreID());
-    uint32_t myArr[RND_ARRAY_SIZE];
-    while (true) {
-        for (int i = 0; i < RND_ARRAY_SIZE; i++) {
-            myArr[i] = esp_random();
-        }
-        if (Serial.available()) {                           // if there is data comming
-            String command = Serial.readStringUntil('\n');  // read string until newline character
-            Serial.println(command);
-            if (command == "a") {
-                for (int j = 0; j < RND_ARRAY_SIZE; j++) {
-                    Serial.print(myArr[j]);
-                    Serial.print(",");
-                }
-                Serial.print("\n");
-            }
-        }
-        vTaskDelay(1);
-    }
-}
+TaskHandle_t Task2;
+uint16_t myArr[SENSOR_BUFFER_SIZE];
 
 void mainCoreTask(void* pvParameters) {
     Serial.println("main core");
@@ -35,25 +33,14 @@ void mainCoreTask(void* pvParameters) {
     }
 }
 
-TaskHandle_t Task1;
-TaskHandle_t Task2;
-
 void setup() {
     Serial.begin(115200);
 
     while (!Serial) {
         delay(10);
     }
-    // create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
-    xTaskCreatePinnedToCore(
-        serialCoreTask, /* Task function. */
-        "Task1",        /* name of task. */
-        100000,          /* Stack size of task */
-        NULL,           /* parameter of the task */
-        1,              /* priority of the task */
-        &Task1,         /* Task handle to keep track of created task */
-        0);             /* pin task to core 0 */
-    delay(3);
+    // Instantiates a SerialCom object
+    SC::SerialCom mySerial(&myArr[0]);
 
     // create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
     xTaskCreatePinnedToCore(
@@ -63,7 +50,7 @@ void setup() {
         NULL,         /* parameter of the task */
         1,            /* priority of the task */
         &Task2,       /* Task handle to keep track of created task */
-        1);           /* pin task to core 1 */
+        0);           /* pin task to core 1 */
 }
 
 void loop() {
