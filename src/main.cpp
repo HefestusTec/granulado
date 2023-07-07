@@ -18,10 +18,10 @@
 #include <Arduino.h>
 
 #include "globalConst.h"
+#include "loadSensor.h"
 #include "serialCom.h"
 
-TaskHandle_t Task2;
-uint16_t myArr[SENSOR_BUFFER_SIZE];
+TaskHandle_t Task1;
 
 void mainCoreTask(void* pvParameters) {
     Serial.println("main core");
@@ -39,17 +39,22 @@ void setup() {
     while (!Serial) {
         delay(10);
     }
-    // Instantiates a SerialCom object
-    SC::SerialCom mySerial(&myArr[0]);
+    uint16_t myArr[SENSOR_BUFFER_SIZE];
 
-    // create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
+    LoadSensor myLoadSensor;
+
+    myLoadSensor.resetSensorReadingsBufferTo(99);
+
+    // Instantiates a SerialCom object
+    SC::SerialCom mySerial(myLoadSensor.getDataPackage());
+
     xTaskCreatePinnedToCore(
         mainCoreTask, /* Task function. */
-        "Task2",      /* name of task. */
+        "Task1",      /* name of task. */
         10000,        /* Stack size of task */
         NULL,         /* parameter of the task */
         1,            /* priority of the task */
-        &Task2,       /* Task handle to keep track of created task */
+        &Task1,       /* Task handle to keep track of created task */
         0);           /* pin task to core 1 */
 }
 

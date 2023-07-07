@@ -21,6 +21,7 @@
 #include <Arduino.h>
 
 #include "globalConst.h"
+#include "protocol.h"
 
 namespace SC {
 
@@ -45,15 +46,17 @@ accessing a value out of bounds
 */
 uint16_t* getValueAt(uint16_t* myArr, uint index);
 
+void sendSensorDataPackage(Protocol::SensorDataPackage* dataPackage);
+
 class SerialCom {
    private:
     /* data */
    public:
-    SerialCom(uint16_t* sensorBuffer);
+    SerialCom(Protocol::SensorDataPackage* sensorDataPtr);
     ~SerialCom();
 
     TaskHandle_t mainTask;
-    uint16_t* sensBufferPtr;
+    Protocol::SensorDataPackage* sensorDataPtr;
 };
 }  // namespace SC
 
