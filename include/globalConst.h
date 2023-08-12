@@ -20,4 +20,13 @@
 
 #define SENSOR_BUFFER_SIZE 1000
 
+// Stepper motor pins
+#define CP_PLUS 13
+// Clockwise pins
+#define CW_PLUS 12
+// Enable pins
+#define EN_PLUS 14
+// Stepper motor steps
+#define MOTOR_STEPS 256
+
 #endif

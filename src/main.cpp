@@ -17,19 +17,42 @@
 
 #include <Arduino.h>
 
+#include "BasicStepperDriver.h"  // generic stepper motor driver
 #include "globalConst.h"
 #include "serialCom.h"
 
-TaskHandle_t Task2;
-uint16_t myArr[SENSOR_BUFFER_SIZE];
-
-void mainCoreTask(void* pvParameters) {
-    Serial.println("main core");
-    Serial.println(xPortGetCoreID());
+void stepperMotorControllerTask(void* pvParameters) {
+    BasicStepperDriver stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS);
+    stepper.begin(120, 1);
+    int8_t direction = 1;
+    long timeForMove = stepper.getTimeForMove(360);
 
     while (true) {
-        // Serial.println("main core");
-        delay(1000);
+        Serial.println("Stepper motor rotating");
+        Serial.println(direction);
+        Serial.println(timeForMove);
+        stepper.rotate(direction * 360);
+        Serial.println("Stepper motor stopped");
+        direction *= -1;
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
+void serialComTask(void* pvParameters) {
+    while (true) {
+        if (Serial.available()) {
+            char command = Serial.read();
+            switch (command) {
+                case 'p':
+                    SC::ping();
+                    break;
+                default:
+                    Serial.println(command);
+                    break;
+            }
+        }
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
@@ -39,22 +62,28 @@ void setup() {
     while (!Serial) {
         delay(10);
     }
-    // Instantiates a SerialCom object
-    SC::SerialCom mySerial(&myArr[0]);
 
-    // create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
     xTaskCreatePinnedToCore(
-        mainCoreTask, /* Task function. */
-        "Task2",      /* name of task. */
-        10000,        /* Stack size of task */
-        NULL,         /* parameter of the task */
-        1,            /* priority of the task */
-        &Task2,       /* Task handle to keep track of created task */
-        0);           /* pin task to core 1 */
+        stepperMotorControllerTask,       // Function to run on this core
+        "Stepper motor controller task",  // Name of the task
+        10000,                            // Stack size in words
+        NULL,                             // Task input parameter
+        1,                                // Priority of the task
+        NULL,                             // Task handle
+        0                                 // Core where the task should run
+    );
+
+    xTaskCreatePinnedToCore(
+        serialComTask,                // Function to run on this core
+        "Serial communication task",  // Name of the task
+        10000,                        // Stack size in words
+        NULL,                         // Task input parameter
+        1,                            // Priority of the task
+        NULL,                         // Task handle
+        1                             // Core where the task should run
+    );
 }
 
 void loop() {
-    // Serial.println("Free memory: " + String(esp_get_free_heap_size()) + " bytes");
-
-    delay(500);
+    delay(1000);
 }
