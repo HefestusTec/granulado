@@ -19,12 +19,31 @@
 #define SERIAL_COM_H
 
 #include <Arduino.h>
+#include <Preferences.h>
 
 #include "globalConst.h"
 
 namespace SC {
 // Serial communication class
 void ping();
+
+long int getCommStart();
+void setCommStart();
+
+long int getUserTimeout();
+void setCommTimeout();
+long int getUserTimeout();
+void setUserTimeout();
+
+long int getMicrostepsByMillimeter();
+void setMicrostepsByMillimeter(long int microsteps);
+long int getMaxMicrostepsTravel();
+void setMaxMicrostepsTravel(long int microsteps);
+float getCalibrationFactor();
+void setCalibrationFactor(long int calibrationFactor);
+
+void setup();
+
 }  // namespace SC
 
 #endif

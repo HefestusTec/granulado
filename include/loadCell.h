@@ -15,12 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "controller.h"
+#ifndef LOAD_CELL_H
+#define LOAD_CELL_H
 
-void setup() {
-    CTRL::setup();
-}
+#include "HX711.h"
+#include "globalConst.h"
+#include "serialCom.h"
 
-void loop() {
-    CTRL::loop();
-}
+namespace LC {
+void calibrate();
+long int getInstaneousReading();
+void getReadings(void *pvParameters);
+void setup();
+void loop();
+}  // namespace LC
+
+#endif

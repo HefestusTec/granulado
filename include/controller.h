@@ -15,12 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "controller.h"
+#ifndef CONTROLLER_H
+#define CONTROLLER_H
 
-void setup() {
-    CTRL::setup();
-}
+#include <Arduino.h>
+#include <FreeRTOS.h>
 
-void loop() {
-    CTRL::loop();
-}
+#include "globalConst.h"
+#include "loadCell.h"
+#include "serialCom.h"
+#include "stepperMotor.h"
+
+namespace CTRL {
+void setup();
+void loop();
+}  // namespace CTRL
+
+#endif
