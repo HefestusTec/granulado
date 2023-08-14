@@ -23,13 +23,14 @@
 #include "serialCom.h"
 
 namespace SM {
-void stopperISR();
+
 void moveToTop(void *pvParameters);
 void moveToBottom(void *pvParameters);
 void moveMillimeters(void *pvParameters);
-void bufferMotorPosition(void *pvParameters);
+void getMotorPositionMillimeters();
 void calibrate(void *pvParameters);
-void stopAll(void *pvParameters);
+void checkStop(void *pvParameters);
+void stopperISR();
 
 void setup();
 }  // namespace SM

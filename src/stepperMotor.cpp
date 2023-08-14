@@ -24,37 +24,32 @@ long int lastRelativePosition = 0;
 long int currentRelativePosition = 0;
 long int microstepsByMillimeter = 0;
 long maxMicrostepsTravel = 1000 * MOTOR_STEPS * MOTOR_MICROSTEPS;
-long int motorPositionBuffer[POSITION_BUFFER_SIZE];
-long int motorPositionBufferIndex = 0;
 
 void moveToTop(void *pvParameters) {
+    if (pvParameters == NULL) return;
     // create a reference to the stop flag
     bool &stop = *reinterpret_cast<bool *>(pvParameters);
+    stop = false;
     // Move to top stopper
     stepper.startMove(maxMicrostepsTravel);
-    while (digitalRead(TOP_STOPPER_PIN) == HIGH) {
-        if (stop) {
-            stopperISR();
-            break;
-        }
+    while (digitalRead(TOP_STOPPER_PIN) == HIGH && !stop) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
 void moveToBottom(void *pvParameters) {
+    if (pvParameters == NULL) return;
     bool &stop = *reinterpret_cast<bool *>(pvParameters);
+    stop = false;
     // Move to bottom stopper
     stepper.startMove(-maxMicrostepsTravel);
-    while (digitalRead(BOTTOM_STOPPER_PIN) == HIGH) {
-        if (stop) {
-            stopperISR();
-            break;
-        }
+    while (digitalRead(BOTTOM_STOPPER_PIN) == HIGH && !stop) {
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
 void moveMillimeters(void *pvParameters) {
+    if (pvParameters == NULL) return;
     long int millimeters;
     memcpy(&millimeters, pvParameters, sizeof(millimeters));
     // create a reference to the stop flag
@@ -62,33 +57,25 @@ void moveMillimeters(void *pvParameters) {
 
     long int microsteps = millimeters * microstepsByMillimeter;
     long int endPosition = motorPosition + microsteps;
-    long int lastPosition = motorPosition;
-    long int currentPosition = motorPosition;
 
-    // enable stepper motor
-    digitalWrite(EN_PLUS, LOW);
     stepper.startMove(microsteps);
     stop = false;
 
-    while (motorPosition < endPosition) {
-        if (stop) {
-            stopperISR();
-            break;
-        }
-        currentPosition = stepper.getStepsCompleted();
-        motorPosition += currentPosition - lastPosition;
-        lastPosition = currentPosition;
+    while (motorPosition < endPosition && !stop) {
+        currentRelativePosition = stepper.getStepsCompleted();
+        motorPosition += currentRelativePosition - lastRelativePosition;
+        lastRelativePosition = currentRelativePosition;
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
-    // disable stepper motor
-    digitalWrite(EN_PLUS, HIGH);
 }
 
-long int getMotorPositionMillimeters() {
-    return motorPosition / microstepsByMillimeter;
+void getMotorPositionMillimeters() {
+    String mp = String(motorPosition / microstepsByMillimeter);
+    Serial.println("g" + mp);
 }
 
 void calibrate(void *pvParameters) {
+    if (pvParameters == NULL) return;
     // create a reference to the stop flag
     bool &stop = *reinterpret_cast<bool *>(pvParameters);
     moveToTop(pvParameters);
@@ -97,7 +84,7 @@ void calibrate(void *pvParameters) {
     if (stop) return;
 
     maxMicrostepsTravel = stepper.getStepsCompleted();
-    microstepsByMillimeter = maxMicrostepsTravel / Z_AXIS_LENGTH_MILLIMETER;
+    microstepsByMillimeter = maxMicrostepsTravel / SC::getZAxisLengthMillimeters();
     SC::setMicrostepsByMillimeter(microstepsByMillimeter);
     if (stop) return;
 
@@ -106,25 +93,26 @@ void calibrate(void *pvParameters) {
     motorPosition = 0;
 }
 
+void checkStop(void *pvParameters) {
+    if (pvParameters == NULL) return;
+    bool &stop = *reinterpret_cast<bool *>(pvParameters);
+    while (true) {
+        if (stop)
+            stopperISR();
+    }
+}
+
 void stopperISR() {
     stepper.stop();
     currentRelativePosition = stepper.getStepsCompleted();
     motorPosition += currentRelativePosition - lastRelativePosition;
     lastRelativePosition = currentRelativePosition;
-    // disable stepper motor
-    digitalWrite(EN_PLUS, HIGH);
-}
-
-void stopAll(void *pvParameters) {
-    bool &stop = *reinterpret_cast<bool *>(pvParameters);
-    stop = true;
-    stopperISR();
 }
 
 void setup() {
     // Initialize stepper motor
     stepper.begin(MOTOR_RPM, MOTOR_MICROSTEPS);
-
+    
     // Attach interrupt to top sensor
     attachInterrupt(digitalPinToInterrupt(TOP_STOPPER_PIN), stopperISR, RISING);
     // Attach interrupt to bottom sensor
@@ -134,14 +122,10 @@ void setup() {
     pinMode(TOP_STOPPER_PIN, INPUT_PULLUP);
     pinMode(BOTTOM_STOPPER_PIN, INPUT_PULLUP);
 
-    // Enable stepper motor
-    digitalWrite(EN_PLUS, LOW);
-    // Disable stepper motor
-    digitalWrite(EN_PLUS, HIGH);
     microstepsByMillimeter = SC::getMicrostepsByMillimeter();
     maxMicrostepsTravel = SC::getMaxMicrostepsTravel();
 
-    // Move to top stopper
+    stepper.enable();
 }
 
 }  // namespace SM

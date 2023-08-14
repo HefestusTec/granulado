@@ -19,28 +19,31 @@
 #define SERIAL_COM_H
 
 #include <Arduino.h>
+#include <FreeRTOS.h>
 #include <Preferences.h>
 
 #include "globalConst.h"
+#include "loadCell.h"
+#include "stepperMotor.h"
 
 namespace SC {
 // Serial communication class
 void ping();
 
-long int getCommStart();
-void setCommStart();
-
-long int getUserTimeout();
-void setCommTimeout();
-long int getUserTimeout();
-void setUserTimeout();
-
 long int getMicrostepsByMillimeter();
 void setMicrostepsByMillimeter(long int microsteps);
 long int getMaxMicrostepsTravel();
 void setMaxMicrostepsTravel(long int microsteps);
+
+int getLoadCellKnownWeight();
+void setLoadCellKnownWeight(int knownWeight);
 float getCalibrationFactor();
-void setCalibrationFactor(long int calibrationFactor);
+void setCalibrationFactor(float calibrationFactor);
+int getZAxisLengthMillimeters();
+void setZAxisLengthMillimeters(int zAxisLengthMillimeters);
+
+
+void decodeCommand(void *pvParameters);
 
 void setup();
 

@@ -23,11 +23,10 @@
 #include "serialCom.h"
 
 namespace LC {
-void calibrate();
-long int getInstaneousReading();
-void getReadings(void *pvParameters);
+void tare();
+void calibrateKnownWeight();
+void getInstaneousReading();
 void setup();
-void loop();
 }  // namespace LC
 
 #endif

@@ -15,12 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "controller.h"
 
 void setup() {
-    CTRL::setup();
 }
 
 void loop() {
-    CTRL::loop();
 }
