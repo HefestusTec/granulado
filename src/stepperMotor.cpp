@@ -112,7 +112,7 @@ void stopperISR() {
 void setup() {
     // Initialize stepper motor
     stepper.begin(MOTOR_RPM, MOTOR_MICROSTEPS);
-    
+
     // Attach interrupt to top sensor
     attachInterrupt(digitalPinToInterrupt(TOP_STOPPER_PIN), stopperISR, RISING);
     // Attach interrupt to bottom sensor

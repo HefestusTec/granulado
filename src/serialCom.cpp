@@ -123,7 +123,7 @@ void decodeCommand(void *pvParameters) {
             case 'r':
                 LC::getInstaneousReading();
                 break;
-    
+
             case '@':
                 LC::tare();
                 break;
