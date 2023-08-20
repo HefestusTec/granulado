@@ -18,6 +18,23 @@
 #ifndef GLOBAL_CONSTS_H
 #define GLOBAL_CONSTS_H
 
-#define SENSOR_BUFFER_SIZE 1000
+// Stepper motor pins
+#define CP_PLUS 13
+// Clockwise pins
+#define CW_PLUS 12
+// Enable pins
+#define EN_PLUS 14
+
+#define TOP_STOPPER_PIN 4
+#define BOTTOM_STOPPER_PIN 5
+// Stepper motor steps
+#define MOTOR_STEPS 256
+#define MOTOR_MICROSTEPS 256
+#define MOTOR_RPM 120
+
+#define LOADCELL_DOUT_PIN 16
+#define LOADCELL_SCK_PIN 4
+
+#define Z_AXIS_LENGTH_MILLIMETER 1000
 
 #endif

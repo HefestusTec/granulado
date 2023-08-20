@@ -17,58 +17,152 @@
 
 #include "serialCom.h"
 
-uint16_t SC::readValueAt(uint16_t* myArr, uint index) {
-    return *(myArr + index);
+namespace SC {
+bool stop;
+
+Preferences preferences;
+
+void ping() {
+    Serial.println("p");
 }
 
-uint16_t* SC::getValueAt(uint16_t* myArr, uint index) {
-    return (myArr + index);
+long int getMicrostepsByMillimeter() {
+    preferences.begin("granulado", true);
+    long int microstepsByMillimeter = preferences.getLong("microstepsByMillimeter", 1000);
+    preferences.end();
+    return microstepsByMillimeter;
 }
 
-void SC::serialCoreTask(void* pvParameters) {
-    Serial.println("serial core");
-    Serial.println(xPortGetCoreID());
-    uint16_t* bufferArrayPtr = ((uint16_t*)pvParameters);
-    for (uint16_t i = 0; i < SENSOR_BUFFER_SIZE; i++) {
-        *SC::getValueAt(bufferArrayPtr, i) = 24;
-    }
+void setMicrostepsByMillimeter(long int microsteps) {
+    preferences.begin("granulado", false);
+    preferences.putLong("microstepsByMillimeter", microsteps);
+    preferences.end();
+}
+
+long int getMaxMicrostepsTravel() {
+    preferences.begin("granulado", true);
+    long int maxMicrostepsTravel = preferences.getLong("maxMicrostepsTravel", 1000 * MOTOR_STEPS * MOTOR_MICROSTEPS);
+    preferences.end();
+    return maxMicrostepsTravel;
+}
+
+void setMaxMicrostepsTravel(long int microsteps) {
+    preferences.begin("granulado", false);
+    preferences.putLong("maxMicrostepsTravel", microsteps);
+    preferences.end();
+}
+
+int getLoadCellKnownWeight() {
+    preferences.begin("granulado", true);
+    long int loadCellKnownWeight = preferences.getLong("loadCellKnownWeight", 1000);
+    preferences.end();
+    return loadCellKnownWeight;
+}
+
+void setLoadCellKnownWeight(int knownWeight) {
+    preferences.begin("granulado", false);
+    preferences.putInt("loadCellKnownWeight", knownWeight);
+    preferences.end();
+}
+
+float getCalibrationFactor() {
+    preferences.begin("granulado", true);
+    float calibrationFactor = preferences.getFloat("calibrationFactor", 1.0);
+    preferences.end();
+    return calibrationFactor;
+}
+
+void setCalibrationFactor(float calibrationFactor) {
+    preferences.putFloat("calibrationFactor", calibrationFactor);
+    preferences.end();
+}
+
+int getZAxisLengthMillimeters() {
+    return preferences.getInt("zAxisLenghtMillimeters", 1000);
+}
+
+void setZAxisLengthMillimeters(int zAxisLengthMillimeters) {
+    preferences.putInt("zAxisLenghtMillimeters", zAxisLengthMillimeters);
+    preferences.end();
+}
+
+void decodeCommand(void *pvParameters) {
+    if (pvParameters == NULL) return;
+    bool &stop = *reinterpret_cast<bool *>(pvParameters);
     while (true) {
-        if (Serial.available()) {                           // if there is data comming
-            String command = Serial.readStringUntil('\n');  // read string until newline character
-            Serial.println(command);
-            if (command == "a") {
-                Serial.println("1");
-            } else if (command == "b") {
-                for (uint j = 0; j < SENSOR_BUFFER_SIZE; j++) {
-                    Serial.print(readValueAt(bufferArrayPtr, j));
+        while (Serial.available() == 0)
+            vTaskDelay(1);
+        String comm = Serial.readStringUntil('\n');
+        char command = comm.charAt(0);
+        switch (command) {
+            case 'p':
+                SC::ping();
+                break;
 
-                    Serial.print(",");
-                }
-                Serial.print("\n");
-            }
-        }
+            case 'm':
+                int millimeters = comm.substring(1).toInt();
+                void *moveParameters = (void *)malloc(sizeof(int) + sizeof(bool *));
+                memcpy(moveParameters, &millimeters, sizeof(int));
+                memcpy(moveParameters + sizeof(int), &stop, sizeof(bool *));
+
+                SM::moveMillimeters(moveParameters);
+                break;
+
+            case 's':
+                stop = true;
+                break;
+
+            case 't':
+                SM::moveToTop(&stop);
+                break;
+
+            case 'g':
+                SM::getMotorPositionMillimeters();
+                break;
+
+            case 'r':
+                LC::getInstaneousReading();
+                break;
+
+            case '@':
+                LC::tare();
+                break;
+
+            case 'w':
+                LC::calibrateKnownWeight();
+                break;
+
+            case 'x':
+                float weight = comm.substring(1).toFloat();
+                SC::setLoadCellKnownWeight(weight);
+                break;
+
+            case 'y':
+                float zAxisLengthMillimeters = comm.substring(1).toFloat();
+                SC::setZAxisLengthMillimeters(zAxisLengthMillimeters);
+                break;
+
+            case 'j':
+                int millimiters = SC::getZAxisLengthMillimeters();
+                // String zAxisLengthString = String(millimiters);
+                // Serial.println("j" + zAxisLengthString);
+                break;
+            case 'z':
+                void *calibrationParameters = (void *)malloc(sizeof(int) + sizeof(bool *));
+                SM::calibrate(calibrationParameters);
+                break;
+            default:
+                Serial.println("edefault_value");
+                break;
+        };
         vTaskDelay(1);
     }
 }
 
-/*
-Constructor of the SerialCom class
-Receives a pointer to the sensor array buffer
-and creates a task attached to core 1.
-*/
-SC::SerialCom::SerialCom(uint16_t* sensorBuffer) {
-    sensBufferPtr = sensorBuffer;
-
-    // create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
-    xTaskCreatePinnedToCore(
-        serialCoreTask,       /* Task function. */
-        "SerialMainTask",     /* name of task. */
-        10000,                /* Stack size of task */
-        (void*)sensBufferPtr, /* parameter of the task */
-        1,                    /* priority of the task */
-        &mainTask,            /* Task handle to keep track of created task */
-        1);                   /* pin task to core 0 */
+void setup() {
+    Serial.begin(115200);
+    preferences.begin("granulado", false);
+    preferences.end();
 }
 
-SC::SerialCom::~SerialCom() {
-}
+}  // namespace SC

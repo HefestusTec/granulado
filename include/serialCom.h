@@ -19,42 +19,33 @@
 #define SERIAL_COM_H
 
 #include <Arduino.h>
+#include <FreeRTOS.h>
+#include <Preferences.h>
 
 #include "globalConst.h"
+#include "loadCell.h"
+#include "stepperMotor.h"
 
 namespace SC {
+// Serial communication class
+void ping();
 
-/*Task that gets executed on the second core*/
-void serialCoreTask(void* pvParameters);
+long int getMicrostepsByMillimeter();
+void setMicrostepsByMillimeter(long int microsteps);
+long int getMaxMicrostepsTravel();
+void setMaxMicrostepsTravel(long int microsteps);
 
-/*
-Receives a pointer to an array and an index.
-Returns the value stored there
+int getLoadCellKnownWeight();
+void setLoadCellKnownWeight(int knownWeight);
+float getCalibrationFactor();
+void setCalibrationFactor(float calibrationFactor);
+int getZAxisLengthMillimeters();
+void setZAxisLengthMillimeters(int zAxisLengthMillimeters);
 
-WARNING: this function is UNSAFE make sure you aren't
-accessing a value out of bounds
-*/
-uint16_t readValueAt(uint16_t* myArr, uint index);
+void decodeCommand(void *pvParameters);
 
-/*
-Receives a pointer to an array and an index.
-Returns a POINTER to the value stored there
+void setup();
 
-WARNING: this function is UNSAFE make sure you aren't
-accessing a value out of bounds
-*/
-uint16_t* getValueAt(uint16_t* myArr, uint index);
-
-class SerialCom {
-   private:
-    /* data */
-   public:
-    SerialCom(uint16_t* sensorBuffer);
-    ~SerialCom();
-
-    TaskHandle_t mainTask;
-    uint16_t* sensBufferPtr;
-};
 }  // namespace SC
 
 #endif

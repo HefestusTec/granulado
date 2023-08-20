@@ -15,8 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
 
-void setup() {
-}
+#ifndef STEPPER_MOTOR_H
+#define STEPPER_MOTOR_H
 
-void loop() {
-}
+#include "BasicStepperDriver.h"  // generic stepper motor driver
+#include "globalConst.h"
+#include "serialCom.h"
+
+namespace SM {
+
+void moveToTop(void *pvParameters);
+void moveToBottom(void *pvParameters);
+void moveMillimeters(void *pvParameters);
+void getMotorPositionMillimeters();
+void calibrate(void *pvParameters);
+void checkStop(void *pvParameters);
+void stopperISR();
+
+void setup();
+}  // namespace SM
+
+#endif
