@@ -15,8 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "globalConst.h"
+#include "loadCell.h"
+#include "serialCom.h"
+#include "stepperMotor.h"
+
+bool *stop;
+
 void setup() {
+    *stop = false;
+    LC::setup();
+    SC::setup();
+    SM::setup();
 }
 
 void loop() {
+    SC::decodeCommand(stop);
 }

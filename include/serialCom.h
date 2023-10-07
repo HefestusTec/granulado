@@ -42,7 +42,7 @@ void setCalibrationFactor(float calibrationFactor);
 int getZAxisLengthMillimeters();
 void setZAxisLengthMillimeters(int zAxisLengthMillimeters);
 
-void decodeCommand(void *pvParameters);
+void decodeCommand(bool *stop);
 
 void setup();
 

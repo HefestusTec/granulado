@@ -86,77 +86,73 @@ void setZAxisLengthMillimeters(int zAxisLengthMillimeters) {
     preferences.end();
 }
 
-void decodeCommand(void *pvParameters) {
-    if (pvParameters == NULL) return;
-    bool &stop = *reinterpret_cast<bool *>(pvParameters);
-    while (true) {
-        while (Serial.available() == 0)
-            vTaskDelay(1);
-        String comm = Serial.readStringUntil('\n');
-        char command = comm.charAt(0);
-        switch (command) {
-            case 'p':
-                SC::ping();
-                break;
-
-            case 'm':
-                int millimeters = comm.substring(1).toInt();
-                void *moveParameters = (void *)malloc(sizeof(int) + sizeof(bool *));
-                memcpy(moveParameters, &millimeters, sizeof(int));
-                memcpy(moveParameters + sizeof(int), &stop, sizeof(bool *));
-
-                SM::moveMillimeters(moveParameters);
-                break;
-
-            case 's':
-                stop = true;
-                break;
-
-            case 't':
-                SM::moveToTop(&stop);
-                break;
-
-            case 'g':
-                SM::getMotorPositionMillimeters();
-                break;
-
-            case 'r':
-                LC::getInstaneousReading();
-                break;
-
-            case '@':
-                LC::tare();
-                break;
-
-            case 'w':
-                LC::calibrateKnownWeight();
-                break;
-
-            case 'x':
-                float weight = comm.substring(1).toFloat();
-                SC::setLoadCellKnownWeight(weight);
-                break;
-
-            case 'y':
-                float zAxisLengthMillimeters = comm.substring(1).toFloat();
-                SC::setZAxisLengthMillimeters(zAxisLengthMillimeters);
-                break;
-
-            case 'j':
-                int millimiters = SC::getZAxisLengthMillimeters();
-                // String zAxisLengthString = String(millimiters);
-                // Serial.println("j" + zAxisLengthString);
-                break;
-            case 'z':
-                void *calibrationParameters = (void *)malloc(sizeof(int) + sizeof(bool *));
-                SM::calibrate(calibrationParameters);
-                break;
-            default:
-                Serial.println("edefault_value");
-                break;
-        };
+void decodeCommand(bool *stop) {
+    while (Serial.available() == 0)
         vTaskDelay(1);
-    }
+    String comm = Serial.readStringUntil('\n');
+    char cmd = comm.charAt(0);
+    switch (cmd) {
+        case 'p':
+            SC::ping();
+            break;
+
+        case 'm':
+            int millimeters = comm.substring(1).toInt();
+            char *moveParameters = (char *)malloc(sizeof(int) + sizeof(bool *));
+            memcpy(moveParameters, &millimeters, sizeof(int));
+            memcpy(moveParameters + sizeof(int), &stop, sizeof(bool *));
+
+            SM::moveMillimeters(moveParameters);
+            break;
+
+        case 's':
+            stop = true;
+            break;
+
+        case 't':
+            SM::moveToTop(&stop);
+            break;
+
+        case 'g':
+            SM::getMotorPositionMillimeters();
+            break;
+
+        case 'r':
+            LC::getInstaneousReading();
+            break;
+
+        case '@':
+            LC::tare();
+            break;
+
+        case 'w':
+            LC::calibrateKnownWeight();
+            break;
+
+        case 'x':
+            float weight = comm.substring(1).toFloat();
+            SC::setLoadCellKnownWeight(weight);
+            break;
+
+        case 'y':
+            float zAxisLengthMillimeters = comm.substring(1).toFloat();
+            SC::setZAxisLengthMillimeters(zAxisLengthMillimeters);
+            break;
+
+        case 'j':
+            int millimiters = SC::getZAxisLengthMillimeters();
+            // String zAxisLengthString = String(millimiters);
+            // Serial.println("j" + zAxisLengthString);
+            break;
+        case 'z':
+            void *calibrationParameters = (void *)malloc(sizeof(int) + sizeof(bool *));
+            SM::calibrate(calibrationParameters);
+            break;
+        default:
+            Serial.println("edefault_value");
+            break;
+    };
+    vTaskDelay(1);
 }
 
 void setup() {
