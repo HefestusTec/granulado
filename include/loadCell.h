@@ -43,13 +43,3 @@ class LoadCell {
 }  // namespace LC
 
 #endif
-
-/*
-c:/users/rafae/.platformio/packages/toolchain-xtensa-esp32s3/bin/../lib/gcc/xtensa-esp32s3-elf/8.4.0/../../../../xtensa-esp32s3-elf/bin/ld.exe: .pio/build/esp32-s3-devkitc-1/src/core.cpp.o:
-
-
-(.literal._ZN4CORE5setupEv+0x18): undefined reference to `CORE::comTask(void*)'
-
-collect2.exe: error: ld returned 1 exit status
-*** [.pio\build\esp32-s3-devkitc-1\firmware.elf] Error 1
-*/
