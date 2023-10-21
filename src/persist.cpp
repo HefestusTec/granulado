@@ -26,9 +26,9 @@ long int getMicrosStepsByMillimeter() {
     return microsStepsByMillimeter;
 }
 
-void setMicrosStepsByMillimeter(long int microsteps) {
+void setMicrosStepsByMillimeter(long int microsSteps) {
     preferences.begin("granulado", false);
-    preferences.putLong("microsStepsByMillimeter", microsteps);
+    preferences.putLong("microsStepsByMillimeter", microsSteps);
     preferences.end();
 }
 
@@ -39,9 +39,9 @@ long int getMaxMicrosStepsTravel() {
     return maxMicrosStepsTravel;
 }
 
-void setMaxMicrosStepsTravel(long int microsteps) {
+void setMaxMicrosStepsTravel(long int microsSteps) {
     preferences.begin("granulado", false);
-    preferences.putLong("maxMicrosStepsTravel", microsteps);
+    preferences.putLong("maxMicrosStepsTravel", microsSteps);
     preferences.end();
 }
 
@@ -71,11 +71,11 @@ void setCalibrationFactor(float calibrationFactor) {
 }
 
 int getZAxisLengthMillimeters() {
-    return preferences.getInt("zAxisLenghtMillimeters", 1000);
+    return preferences.getInt("zAxisLengthMillimeters", 1000);
 }
 
 void setZAxisLengthMillimeters(int zAxisLengthMillimeters) {
-    preferences.putInt("zAxisLenghtMillimeters", zAxisLengthMillimeters);
+    preferences.putInt("zAxisLengthMillimeters", zAxisLengthMillimeters);
     preferences.end();
 }
 void setup() {

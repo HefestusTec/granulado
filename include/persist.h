@@ -23,9 +23,9 @@
 
 namespace PERS {
 long int getMicrosStepsByMillimeter();
-void setMicrosStepsByMillimeter(long int microsteps);
+void setMicrosStepsByMillimeter(long int microsSteps);
 long int getMaxMicrosStepsTravel();
-void setMaxMicrosStepsTravel(long int microsteps);
+void setMaxMicrosStepsTravel(long int microsSteps);
 
 int getLoadCellKnownWeight();
 void setLoadCellKnownWeight(int knownWeight);
