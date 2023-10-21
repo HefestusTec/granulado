@@ -14,13 +14,23 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
+#ifndef STATE_H
+#define STATE_H
 
-#include "core.h"
+namespace STATE {
 
-void setup() {
-    CORE::setup();
-}
+enum class StateEnum {
+    NOT_CONNECTED,
+    IDLE,
+    CALIBRATING_KNOWN_WEIGHT,
+    CALIBRATING_Z_AXIS,
+    MOVING_Z_AXIS,
+    ON_EXPERIMENT,
+    RETURNING_TO_HOME
+};
 
-void loop() {
-    CORE::process();
-}
+extern StateEnum currentState;
+
+}  // namespace STATE
+
+#endif

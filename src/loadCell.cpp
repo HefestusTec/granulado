@@ -18,31 +18,32 @@
 #include "loadCell.h"
 
 namespace LC {
-HX711 scale;
 
-float calibrationFactor = 1.0;
+LoadCell::LoadCell(/* args */) {
+}
 
-void tare() {
+void LoadCell::tare() {
     scale.set_scale();
     scale.tare();  // Reset the scale to 0
 }
 
-void calibrateKnownWeight() {
+void LoadCell::calibrateKnownWeight() {
+    STATE::currentState = STATE::StateEnum::CALIBRATING_KNOWN_WEIGHT;
     long reading = scale.get_units(80);
-    calibrationFactor = SC::getLoadCellKnownWeight() / reading;  // Divide reading from known weight
-    scale.set_scale(calibrationFactor);                          // Adjust to this calibration factor
-    SC::setCalibrationFactor(calibrationFactor);                 // Save calibration factor to EEPROM
+    calibrationFactor = PERS::getLoadCellKnownWeight() / reading;  // Divide reading from known weight
+    scale.set_scale(calibrationFactor);                            // Adjust to this calibration factor
+    PERS::setCalibrationFactor(calibrationFactor);                 // Save calibration factor to EEPROM
+    STATE::currentState = STATE::StateEnum::IDLE;
 }
 
-void getInstaneousReading() {
+float LoadCell::getInstaneousReading() {
     float weight = (float)scale.read() * calibrationFactor;
-    String reading = String(weight, 5);
-    Serial.println("r" + reading);
+    return weight;
 }
 
-void setup() {
+void LoadCell::setup() {
     scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
-    calibrationFactor = SC::getCalibrationFactor();
+    calibrationFactor = PERS::getCalibrationFactor();
     scale.power_up();
     scale.set_scale(calibrationFactor);  // this value is obtained by calibrating the scale with known weights; see the README for details
 }

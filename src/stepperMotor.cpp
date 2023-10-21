@@ -18,114 +18,97 @@
 #include "stepperMotor.h"
 
 namespace SM {
-BasicStepperDriver stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS);
-long int motorPosition = 0;
-long int lastRelativePosition = 0;
-long int currentRelativePosition = 0;
-long int microstepsByMillimeter = 0;
-long maxMicrostepsTravel = 1000 * MOTOR_STEPS * MOTOR_MICROSTEPS;
 
-void moveToTop(void *pvParameters) {
-    if (pvParameters == NULL) return;
-    // create a reference to the stop flag
-    bool &stop = *reinterpret_cast<bool *>(pvParameters);
-    stop = false;
-    // Move to top stopper
-    stepper.startMove(maxMicrostepsTravel);
-    while (digitalRead(TOP_STOPPER_PIN) == HIGH && !stop) {
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+StepperMotor::StepperMotor() : stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS) {
+}
+
+void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
+    stopMotor();
+
+    if (topOrBottom == GLOBAL::EndTravelPos::TOP) {
+        if (calibrationState == CalibratingState::MOVING_TO_TOP) {
+            calibrationState = CalibratingState::MOVING_TO_BOTTOM;
+            motorPositionSteps = 0;  // Sets the top as 0
+            moveToBottom();
+        }
+    }
+    if (topOrBottom == GLOBAL::EndTravelPos::BOTTOM) {
+        if (calibrationState == CalibratingState::MOVING_TO_BOTTOM) {
+            calibrationState = CalibratingState::FINISHED;
+            zAxisSizeInSteps = motorPositionSteps;  // Sets the top as 0
+            moveMillimeters(10);
+        }
     }
 }
 
-void moveToBottom(void *pvParameters) {
-    if (pvParameters == NULL) return;
-    bool &stop = *reinterpret_cast<bool *>(pvParameters);
-    stop = false;
-    // Move to bottom stopper
-    stepper.startMove(-maxMicrostepsTravel);
-    while (digitalRead(BOTTOM_STOPPER_PIN) == HIGH && !stop) {
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+void StepperMotor::moveToTop() {
+    stepper.startMove(INT_MAX);
+}
+
+void StepperMotor::moveToBottom() {
+    stepper.startMove(INT_MIN);
+}
+
+void StepperMotor::moveMillimeters(int distance) {
+    stepper.move(distance);
+}
+
+int StepperMotor::getmotorPositionStepsMillimeters() {
+    return motorPositionSteps / microsStepsByMillimeter;
+}
+
+void StepperMotor::calibrate() {
+    STATE::currentState = STATE::StateEnum::CALIBRATING_Z_AXIS;
+    calibrationState = CalibratingState::STARTED;
+}
+
+void StepperMotor::calibrateProcess() {
+    switch (calibrationState) {
+        case CalibratingState::STARTED:
+            calibrationState = CalibratingState::MOVING_TO_TOP;
+            moveToTop();
+            Serial.println("Calibration started");
+            break;
+
+        case CalibratingState::MOVING_TO_TOP:
+            Serial.println("Calibration Moving to top");
+            break;
+
+        case CalibratingState::MOVING_TO_BOTTOM:
+            Serial.println("Calibration Moving to bottom");
+            break;
+
+        case CalibratingState::FINISHED:
+            STATE::currentState = STATE::StateEnum::IDLE;
+            microsStepsByMillimeter = zAxisSizeInSteps / PERS::getZAxisLengthMillimeters();
+            PERS::setmicrosStepsByMillimeter(microsStepsByMillimeter);
+            Serial.println("Calibration finished");
+            break;
+
+        default:
+            break;
     }
 }
 
-void moveMillimeters(void *pvParameters) {
-    if (pvParameters == NULL) return;
-    long int millimeters;
-    memcpy(&millimeters, pvParameters, sizeof(millimeters));
-    // create a reference to the stop flag
-    bool &stop = *reinterpret_cast<bool *>(pvParameters + sizeof(millimeters));
-
-    long int microsteps = millimeters * microstepsByMillimeter;
-    long int endPosition = motorPosition + microsteps;
-
-    stepper.startMove(microsteps);
-    stop = false;
-
-    while (motorPosition < endPosition && !stop) {
-        currentRelativePosition = stepper.getStepsCompleted();
-        motorPosition += currentRelativePosition - lastRelativePosition;
-        lastRelativePosition = currentRelativePosition;
-        vTaskDelay(100 / portTICK_PERIOD_MS);
-    }
-}
-
-void getMotorPositionMillimeters() {
-    String mp = String(motorPosition / microstepsByMillimeter);
-    Serial.println("g" + mp);
-}
-
-void calibrate(void *pvParameters) {
-    if (pvParameters == NULL) return;
-    // create a reference to the stop flag
-    bool &stop = *reinterpret_cast<bool *>(pvParameters);
-    moveToTop(pvParameters);
-    if (stop) return;
-    moveToBottom(pvParameters);
-    if (stop) return;
-
-    maxMicrostepsTravel = stepper.getStepsCompleted();
-    microstepsByMillimeter = maxMicrostepsTravel / SC::getZAxisLengthMillimeters();
-    SC::setMicrostepsByMillimeter(microstepsByMillimeter);
-    if (stop) return;
-
-    moveToTop(pvParameters);
-    if (stop) return;
-    motorPosition = 0;
-}
-
-void checkStop(void *pvParameters) {
-    if (pvParameters == NULL) return;
-    bool &stop = *reinterpret_cast<bool *>(pvParameters);
-    while (true) {
-        if (stop)
-            stopperISR();
-    }
-}
-
-void stopperISR() {
+long int StepperMotor::stopMotor() {
     stepper.stop();
-    currentRelativePosition = stepper.getStepsCompleted();
-    motorPosition += currentRelativePosition - lastRelativePosition;
-    lastRelativePosition = currentRelativePosition;
+    long int currentRelativeSteps = stepper.getStepsCompleted();
+    motorPositionSteps += currentRelativeSteps - lastRelativePositionSteps;
+    lastRelativePositionSteps = currentRelativeSteps;
+    return currentRelativeSteps;
 }
 
-void setup() {
+void StepperMotor::setup() {
     // Initialize stepper motor
-    stepper.begin(MOTOR_RPM, MOTOR_MICROSTEPS);
-
-    // Attach interrupt to top sensor
-    attachInterrupt(digitalPinToInterrupt(TOP_STOPPER_PIN), stopperISR, RISING);
-    // Attach interrupt to bottom sensor
-    attachInterrupt(digitalPinToInterrupt(BOTTOM_STOPPER_PIN), stopperISR, RISING);
+    stepper.begin(MOTOR_RPM, MOTOR_MICROS_STEPS);
 
     // Configure stopper pin to read HIGH unless grounded
     pinMode(TOP_STOPPER_PIN, INPUT_PULLUP);
     pinMode(BOTTOM_STOPPER_PIN, INPUT_PULLUP);
 
-    microstepsByMillimeter = SC::getMicrostepsByMillimeter();
-    maxMicrostepsTravel = SC::getMaxMicrostepsTravel();
+    microsStepsByMillimeter = PERS::getmicrosStepsByMillimeter();
+    zAxisSizeInSteps = PERS::getmaxMicrosStepsTravel();
 
     stepper.enable();
 }
-
 }  // namespace SM

@@ -18,21 +18,46 @@
 #ifndef STEPPER_MOTOR_H
 #define STEPPER_MOTOR_H
 
-#include "BasicStepperDriver.h"  // generic stepper motor driver
-#include "globalConst.h"
+#include <BasicStepperDriver.h>
+
+#include "globals.h"
+#include "persist.h"
 #include "serialCom.h"
+#include "state.h"
 
 namespace SM {
+enum class CalibratingState {
+    STARTED,
+    MOVING_TO_TOP,
+    MOVING_TO_BOTTOM,
+    FINISHED
+};
 
-void moveToTop(void *pvParameters);
-void moveToBottom(void *pvParameters);
-void moveMillimeters(void *pvParameters);
-void getMotorPositionMillimeters();
-void calibrate(void *pvParameters);
-void checkStop(void *pvParameters);
-void stopperISR();
+class StepperMotor {
+   public:
+    StepperMotor();
+    void moveToTop();
+    void moveToBottom();
+    void moveMillimeters(int distance);
+    int getmotorPositionStepsMillimeters();
+    void calibrate();
+    void calibrateProcess();
+    void checkStop();
+    long stopMotor();
+    void setup();
 
-void setup();
+    void reachedInterrupt(GLOBAL::EndTravelPos topOrBottom);
+
+    long int motorPositionSteps = 0;
+    long int microsStepsByMillimeter = 0;
+
+   private:
+    long int lastRelativePositionSteps = 0;
+    long int zAxisSizeInSteps = 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS;
+
+    BasicStepperDriver stepper;
+    CalibratingState calibrationState = CalibratingState::FINISHED;
+};
 }  // namespace SM
 
 #endif
