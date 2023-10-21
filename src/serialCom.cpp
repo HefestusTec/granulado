@@ -18,18 +18,9 @@
 #include "serialCom.h"
 
 namespace SC {
-bool stop;
 
-void ping() {
-    Serial.println("p");
-}
-
-String readSerialMessage() {
-    return;
-}
-
-ReceivedStruct getCommand() {
-    ReceivedStruct result;
+MessageStruct getCommand() {
+    MessageStruct result;
     result.command = ReceivedCommand::NONE;
     result.data = "";
 
@@ -95,6 +86,30 @@ ReceivedStruct getCommand() {
             break;
     };
     return result;
+}
+
+void sendMessage(SentMessage message, String data) {
+    String messageCode = "e";
+    switch (message) {
+        case SentMessage::PING_RESPONSE:
+            messageCode = "p";
+            break;
+        case SentMessage::CURRENT_READING:
+            messageCode = "r";
+            break;
+        case SentMessage::CURRENT_POSITION:
+            messageCode = "g";
+            break;
+        case SentMessage::Z_AXIS_LENGTH:
+            messageCode = "j";
+            break;
+        case SentMessage::ERROR:
+            messageCode = "e";
+            break;
+        default:
+            break;
+    }
+    Serial.println(messageCode + data);
 }
 
 void setup() {

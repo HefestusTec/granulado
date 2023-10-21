@@ -18,11 +18,11 @@
 
 namespace CORE {
 TaskHandle_t comTaskHandler;
-String stringToSend;  // This isn't a queue because coms need to be synchronous between send and receive
-SemaphoreHandle_t comMutex;
+
 SC::ReceivedCommand currentCommand = SC::ReceivedCommand::NONE;
 
 SM::StepperMotor stepperMotor;
+LC::LoadCell loadCell;
 
 void topStopInterrupt() {
     stepperMotor.reachedInterrupt(GLOBAL::EndTravelPos::TOP);
@@ -38,17 +38,10 @@ void setup() {
     // Attach interrupt to bottom sensor
     attachInterrupt(digitalPinToInterrupt(BOTTOM_STOPPER_PIN), bottomStopInterrupt, RISING);
 
-    LC::setup();
-    SC::setup();
     PERS::setup();
+    SC::setup();
+    loadCell.setup();
     stepperMotor.setup();
-    comMutex = xSemaphoreCreateMutex();
-
-    if (comMutex == NULL) {
-        Serial.println("Error during Mutex creation");
-        while (true) {
-        }
-    }
 
     // Creates serial com task
     xTaskCreatePinnedToCore(
@@ -61,44 +54,55 @@ void setup() {
         0);              /* Core where the task should run */
 }
 
-void comTask() {
+void comTask(void* parameter) {
     while (true) {
         vTaskDelay(10);
-        SC::ReceivedStruct received = SC::getCommand();
+        SC::MessageStruct received = SC::getCommand();
         currentCommand = received.command;
+        String data = received.data;
 
         if (currentCommand == SC::ReceivedCommand::NONE) continue;
 
         switch (currentCommand) {
             case SC::ReceivedCommand::CALIBRATE_KNOWN_WEIGHT:
-                LC::calibrateKnownWeight();
+                loadCell.calibrateKnownWeight();
                 break;
             case SC::ReceivedCommand::CALIBRATE_Z_AXIS:
                 stepperMotor.calibrate();
                 break;
             case SC::ReceivedCommand::GET_POSITION:
+                SC::sendMessage(SC::SentMessage::CURRENT_POSITION, String(stepperMotor.getmotorPositionStepsMillimeters()));
                 break;
             case SC::ReceivedCommand::GET_READINGS:
+                SC::sendMessage(SC::SentMessage::CURRENT_READING, String(loadCell.getInstaneousReading(), 5));
                 break;
             case SC::ReceivedCommand::GET_Z_AXIS_LENGTH:
+                SC::sendMessage(SC::SentMessage::Z_AXIS_LENGTH, String(PERS::getZAxisLengthMillimeters()));
                 break;
             case SC::ReceivedCommand::MOVE_TO_TOP:
                 stepperMotor.moveToTop();
                 break;
             case SC::ReceivedCommand::MOVE_X_MM:
+                stepperMotor.moveMillimeters(data.toInt());
                 break;
             case SC::ReceivedCommand::PING:
-                SC::ping();
+                SC::sendMessage(SC::SentMessage::PING_RESPONSE, "");
                 break;
             case SC::ReceivedCommand::SET_KNOWN_WEIGHT:
+                PERS::setLoadCellKnownWeight(data.toInt());
                 break;
             case SC::ReceivedCommand::SET_Z_AXIS_LENGTH:
+                PERS::setZAxisLengthMillimeters(data.toInt());
                 break;
             case SC::ReceivedCommand::STOP:
+                stepperMotor.stopMotor();
+                STATE::currentState = STATE::StateEnum::IDLE;
                 break;
             case SC::ReceivedCommand::TARE_LOAD:
+                loadCell.tare();
                 break;
             default:
+                SC::sendMessage(SC::SentMessage::ERROR, "Invalid command");
                 break;
         }
     }

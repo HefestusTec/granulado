@@ -20,13 +20,36 @@
 
 #include "HX711.h"
 #include "globals.h"
+#include "persist.h"
 #include "serialCom.h"
+#include "state.h"
 
 namespace LC {
-void tare();
-void calibrateKnownWeight();
-void getInstaneousReading();
-void setup();
+
+class LoadCell {
+   public:
+    LoadCell();
+
+    void tare();
+    void calibrateKnownWeight();
+    float getInstaneousReading();
+    void setup();
+
+   private:
+    HX711 scale;
+    float calibrationFactor = 1.0;
+};
+
 }  // namespace LC
 
 #endif
+
+/*
+c:/users/rafae/.platformio/packages/toolchain-xtensa-esp32s3/bin/../lib/gcc/xtensa-esp32s3-elf/8.4.0/../../../../xtensa-esp32s3-elf/bin/ld.exe: .pio/build/esp32-s3-devkitc-1/src/core.cpp.o:
+
+
+(.literal._ZN4CORE5setupEv+0x18): undefined reference to `CORE::comTask(void*)'
+
+collect2.exe: error: ld returned 1 exit status
+*** [.pio\build\esp32-s3-devkitc-1\firmware.elf] Error 1
+*/

@@ -22,8 +22,6 @@
 #include <FreeRTOS.h>
 
 #include "globals.h"
-#include "loadCell.h"
-#include "stepperMotor.h"
 
 namespace SC {
 
@@ -43,15 +41,23 @@ enum class ReceivedCommand {
     TARE_LOAD = '@'
 };
 
-struct ReceivedStruct {
+enum class SentMessage {
+    PING_RESPONSE = 'p',
+    CURRENT_READING = 'r',
+    CURRENT_POSITION = 'g',
+    Z_AXIS_LENGTH = 'j',
+    ERROR = 'e',
+};
+
+struct MessageStruct {
     ReceivedCommand command;
     String data;
 };
 
-void ping();
-
 String readSerialMessage();
-ReceivedStruct getCommand();
+MessageStruct getCommand();
+
+void sendMessage(SentMessage message, String data);
 
 void setup();
 
