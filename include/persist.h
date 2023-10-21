@@ -22,10 +22,10 @@
 #include "globals.h"
 
 namespace PERS {
-long int getmicrosStepsByMillimeter();
-void setmicrosStepsByMillimeter(long int microsteps);
-long int getmaxMicrosStepsTravel();
-void setmaxMicrosStepsTravel(long int microsteps);
+long int getMicrosStepsByMillimeter();
+void setMicrosStepsByMillimeter(long int microsteps);
+long int getMaxMicrosStepsTravel();
+void setMaxMicrosStepsTravel(long int microsteps);
 
 int getLoadCellKnownWeight();
 void setLoadCellKnownWeight(int knownWeight);

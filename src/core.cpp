@@ -24,12 +24,18 @@ SC::ReceivedCommand currentCommand = SC::ReceivedCommand::NONE;
 SM::StepperMotor stepperMotor;
 LC::LoadCell loadCell;
 
+bool wasCalibrating = false;
+bool lastIsOnTopSwitch = false;
+bool lastIsOnBottomSwitch = false;
+
 void topStopInterrupt() {
     stepperMotor.reachedInterrupt(GLOBAL::EndTravelPos::TOP);
+    SC::sendMessage(SC::SentMessage::TRIGGERED_TOP_INTERRUPT, "");
 }
 
 void bottomStopInterrupt() {
     stepperMotor.reachedInterrupt(GLOBAL::EndTravelPos::BOTTOM);
+    SC::sendMessage(SC::SentMessage::TRIGGERED_BOTTOM_INTERRUPT, "");
 }
 
 void setup() {
@@ -71,7 +77,7 @@ void comTask(void* parameter) {
                 stepperMotor.calibrate();
                 break;
             case SC::ReceivedCommand::GET_POSITION:
-                SC::sendMessage(SC::SentMessage::CURRENT_POSITION, String(stepperMotor.getmotorPositionStepsMillimeters()));
+                SC::sendMessage(SC::SentMessage::CURRENT_POSITION, String(stepperMotor.getMotorPositionStepsMillimeters()));
                 break;
             case SC::ReceivedCommand::GET_READINGS:
                 SC::sendMessage(SC::SentMessage::CURRENT_READING, String(loadCell.getInstaneousReading(), 5));
@@ -109,25 +115,13 @@ void comTask(void* parameter) {
 }
 
 void process() {
-    if (STATE::currentState == STATE::StateEnum::NOT_CONNECTED) {
-        return;
-    }
     switch (STATE::currentState) {
-        case STATE::StateEnum::NOT_CONNECTED:
-            /* code */
-            break;
-        case STATE::StateEnum::MOVING_Z_AXIS:
-            break;
         case STATE::StateEnum::CALIBRATING_Z_AXIS:
             stepperMotor.calibrateProcess();
             break;
         default:
-            _tryConnect();
             break;
     }
-}
-
-void _tryConnect() {
 }
 
 }  // namespace CORE

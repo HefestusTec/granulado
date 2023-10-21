@@ -47,6 +47,8 @@ enum class SentMessage {
     CURRENT_POSITION = 'g',
     Z_AXIS_LENGTH = 'j',
     ERROR = 'e',
+    TRIGGERED_BOTTOM_INTERRUPT = 'b',
+    TRIGGERED_TOP_INTERRUPT = 't',
 };
 
 struct MessageStruct {

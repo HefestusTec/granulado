@@ -36,24 +36,28 @@ void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
         if (calibrationState == CalibratingState::MOVING_TO_BOTTOM) {
             calibrationState = CalibratingState::FINISHED;
             zAxisSizeInSteps = motorPositionSteps;  // Sets the top as 0
-            moveMillimeters(10);
+            moveMillimeters(-10);
         }
     }
 }
 
 void StepperMotor::moveToTop() {
+    if (digitalRead(TOP_STOPPER_PIN)) return;
     stepper.startMove(INT_MAX);
 }
 
 void StepperMotor::moveToBottom() {
+    if (digitalRead(BOTTOM_STOPPER_PIN)) return;
     stepper.startMove(INT_MIN);
 }
 
 void StepperMotor::moveMillimeters(int distance) {
+    if (distance >= 0 ? digitalRead(BOTTOM_STOPPER_PIN) : digitalRead(TOP_STOPPER_PIN))
+        return;
     stepper.move(distance);
 }
 
-int StepperMotor::getmotorPositionStepsMillimeters() {
+int StepperMotor::getMotorPositionStepsMillimeters() {
     return motorPositionSteps / microsStepsByMillimeter;
 }
 
@@ -81,7 +85,7 @@ void StepperMotor::calibrateProcess() {
         case CalibratingState::FINISHED:
             STATE::currentState = STATE::StateEnum::IDLE;
             microsStepsByMillimeter = zAxisSizeInSteps / PERS::getZAxisLengthMillimeters();
-            PERS::setmicrosStepsByMillimeter(microsStepsByMillimeter);
+            PERS::setMicrosStepsByMillimeter(microsStepsByMillimeter);
             Serial.println("Calibration finished");
             break;
 
@@ -106,8 +110,8 @@ void StepperMotor::setup() {
     pinMode(TOP_STOPPER_PIN, INPUT_PULLUP);
     pinMode(BOTTOM_STOPPER_PIN, INPUT_PULLUP);
 
-    microsStepsByMillimeter = PERS::getmicrosStepsByMillimeter();
-    zAxisSizeInSteps = PERS::getmaxMicrosStepsTravel();
+    microsStepsByMillimeter = PERS::getMicrosStepsByMillimeter();
+    zAxisSizeInSteps = PERS::getMaxMicrosStepsTravel();
 
     stepper.enable();
 }

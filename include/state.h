@@ -20,11 +20,9 @@
 namespace STATE {
 
 enum class StateEnum {
-    NOT_CONNECTED,
     IDLE,
     CALIBRATING_KNOWN_WEIGHT,
     CALIBRATING_Z_AXIS,
-    MOVING_Z_AXIS,
     ON_EXPERIMENT,
     RETURNING_TO_HOME
 };

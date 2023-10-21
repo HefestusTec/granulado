@@ -39,7 +39,7 @@ class StepperMotor {
     void moveToTop();
     void moveToBottom();
     void moveMillimeters(int distance);
-    int getmotorPositionStepsMillimeters();
+    int getMotorPositionStepsMillimeters();
     void calibrate();
     void calibrateProcess();
     void checkStop();
@@ -51,12 +51,13 @@ class StepperMotor {
     long int motorPositionSteps = 0;
     long int microsStepsByMillimeter = 0;
 
+    CalibratingState calibrationState = CalibratingState::FINISHED;
+
    private:
     long int lastRelativePositionSteps = 0;
     long int zAxisSizeInSteps = 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS;
 
     BasicStepperDriver stepper;
-    CalibratingState calibrationState = CalibratingState::FINISHED;
 };
 }  // namespace SM
 

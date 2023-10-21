@@ -19,27 +19,27 @@
 namespace PERS {
 Preferences preferences;
 
-long int getmicrosStepsByMillimeter() {
+long int getMicrosStepsByMillimeter() {
     preferences.begin("granulado", true);
     long int microsStepsByMillimeter = preferences.getLong("microsStepsByMillimeter", 1000);
     preferences.end();
     return microsStepsByMillimeter;
 }
 
-void setmicrosStepsByMillimeter(long int microsteps) {
+void setMicrosStepsByMillimeter(long int microsteps) {
     preferences.begin("granulado", false);
     preferences.putLong("microsStepsByMillimeter", microsteps);
     preferences.end();
 }
 
-long int getmaxMicrosStepsTravel() {
+long int getMaxMicrosStepsTravel() {
     preferences.begin("granulado", true);
     long int maxMicrosStepsTravel = preferences.getLong("maxMicrosStepsTravel", 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS);
     preferences.end();
     return maxMicrosStepsTravel;
 }
 
-void setmaxMicrosStepsTravel(long int microsteps) {
+void setMaxMicrosStepsTravel(long int microsteps) {
     preferences.begin("granulado", false);
     preferences.putLong("maxMicrosStepsTravel", microsteps);
     preferences.end();

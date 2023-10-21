@@ -36,8 +36,6 @@ void comTask(void* parameter);  // Is setup to run on the second core
 void topStopInterrupt();
 void bottomStopInterrupt();
 
-void _tryConnect();
-
 }  // namespace CORE
 
 #endif

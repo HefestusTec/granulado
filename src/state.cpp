@@ -19,6 +19,6 @@
 
 namespace STATE {
 
-StateEnum currentState = StateEnum::NOT_CONNECTED;
+StateEnum currentState = StateEnum::IDLE;
 
 }
