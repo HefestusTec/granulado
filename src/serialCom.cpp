@@ -20,145 +20,87 @@
 namespace SC {
 bool stop;
 
-Preferences preferences;
-
 void ping() {
     Serial.println("p");
 }
 
-long int getMicrostepsByMillimeter() {
-    preferences.begin("granulado", true);
-    long int microstepsByMillimeter = preferences.getLong("microstepsByMillimeter", 1000);
-    preferences.end();
-    return microstepsByMillimeter;
+String readSerialMessage() {
+    return;
 }
 
-void setMicrostepsByMillimeter(long int microsteps) {
-    preferences.begin("granulado", false);
-    preferences.putLong("microstepsByMillimeter", microsteps);
-    preferences.end();
-}
+ReceivedStruct getCommand() {
+    ReceivedStruct result;
+    result.command = ReceivedCommand::NONE;
+    result.data = "";
 
-long int getMaxMicrostepsTravel() {
-    preferences.begin("granulado", true);
-    long int maxMicrostepsTravel = preferences.getLong("maxMicrostepsTravel", 1000 * MOTOR_STEPS * MOTOR_MICROSTEPS);
-    preferences.end();
-    return maxMicrostepsTravel;
-}
+    if (Serial.available() == 0) return result;
 
-void setMaxMicrostepsTravel(long int microsteps) {
-    preferences.begin("granulado", false);
-    preferences.putLong("maxMicrostepsTravel", microsteps);
-    preferences.end();
-}
-
-int getLoadCellKnownWeight() {
-    preferences.begin("granulado", true);
-    long int loadCellKnownWeight = preferences.getLong("loadCellKnownWeight", 1000);
-    preferences.end();
-    return loadCellKnownWeight;
-}
-
-void setLoadCellKnownWeight(int knownWeight) {
-    preferences.begin("granulado", false);
-    preferences.putInt("loadCellKnownWeight", knownWeight);
-    preferences.end();
-}
-
-float getCalibrationFactor() {
-    preferences.begin("granulado", true);
-    float calibrationFactor = preferences.getFloat("calibrationFactor", 1.0);
-    preferences.end();
-    return calibrationFactor;
-}
-
-void setCalibrationFactor(float calibrationFactor) {
-    preferences.putFloat("calibrationFactor", calibrationFactor);
-    preferences.end();
-}
-
-int getZAxisLengthMillimeters() {
-    return preferences.getInt("zAxisLenghtMillimeters", 1000);
-}
-
-void setZAxisLengthMillimeters(int zAxisLengthMillimeters) {
-    preferences.putInt("zAxisLenghtMillimeters", zAxisLengthMillimeters);
-    preferences.end();
-}
-
-void decodeCommand(bool *stop) {
-    while (Serial.available() == 0)
-        vTaskDelay(1);
     String comm = Serial.readStringUntil('\n');
     char cmd = comm.charAt(0);
+
     switch (cmd) {
         case 'p':
-            SC::ping();
+            result.command = ReceivedCommand::PING;
             break;
 
         case 'm':
-            int millimeters = comm.substring(1).toInt();
-            char *moveParameters = (char *)malloc(sizeof(int) + sizeof(bool *));
-            memcpy(moveParameters, &millimeters, sizeof(int));
-            memcpy(moveParameters + sizeof(int), &stop, sizeof(bool *));
-
-            SM::moveMillimeters(moveParameters);
+            result.command = ReceivedCommand::MOVE_X_MM;
+            result.data = comm.substring(1);
             break;
 
         case 's':
-            stop = true;
+            result.command = ReceivedCommand::STOP;
             break;
 
         case 't':
-            SM::moveToTop(&stop);
+            result.command = ReceivedCommand::MOVE_TO_TOP;
             break;
 
         case 'g':
-            SM::getMotorPositionMillimeters();
+            result.command = ReceivedCommand::GET_POSITION;
             break;
 
         case 'r':
-            LC::getInstaneousReading();
+            result.command = ReceivedCommand::GET_READINGS;
             break;
 
         case '@':
-            LC::tare();
+            result.command = ReceivedCommand::TARE_LOAD;
             break;
 
         case 'w':
-            LC::calibrateKnownWeight();
+            result.command = ReceivedCommand::CALIBRATE_KNOWN_WEIGHT;
             break;
 
         case 'x':
-            float weight = comm.substring(1).toFloat();
-            SC::setLoadCellKnownWeight(weight);
+            result.command = ReceivedCommand::SET_KNOWN_WEIGHT;
+            result.data = comm.substring(1);
             break;
 
         case 'y':
-            float zAxisLengthMillimeters = comm.substring(1).toFloat();
-            SC::setZAxisLengthMillimeters(zAxisLengthMillimeters);
+            result.command = ReceivedCommand::SET_Z_AXIS_LENGTH;
+            result.data = comm.substring(1);
             break;
 
         case 'j':
-            int millimiters = SC::getZAxisLengthMillimeters();
-            // String zAxisLengthString = String(millimiters);
-            // Serial.println("j" + zAxisLengthString);
+            result.command = ReceivedCommand::GET_Z_AXIS_LENGTH;
             break;
+
         case 'z':
-            void *calibrationParameters = (void *)malloc(sizeof(int) + sizeof(bool *));
-            SM::calibrate(calibrationParameters);
+            result.command = ReceivedCommand::CALIBRATE_Z_AXIS;
             break;
+
         default:
-            Serial.println("edefault_value");
+            result.command = ReceivedCommand::NONE;
             break;
     };
-    vTaskDelay(1);
+    return result;
 }
 
 void setup() {
     Serial.begin(115200);
-    preferences.begin("granulado", false);
-    preferences.end();
+    while (!Serial)
+        delay(10);
 }
 
 }  // namespace SC

@@ -19,7 +19,7 @@
 #define LOAD_CELL_H
 
 #include "HX711.h"
-#include "globalConst.h"
+#include "globals.h"
 #include "serialCom.h"
 
 namespace LC {

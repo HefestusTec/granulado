@@ -29,12 +29,19 @@
 #define BOTTOM_STOPPER_PIN 5
 // Stepper motor steps
 #define MOTOR_STEPS 256
-#define MOTOR_MICROSTEPS 256
+#define MOTOR_MICROS_STEPS 256
 #define MOTOR_RPM 120
 
 #define LOADCELL_DOUT_PIN 16
 #define LOADCELL_SCK_PIN 17
 
 #define Z_AXIS_LENGTH_MILLIMETER 1000
+
+namespace GLOBAL {
+enum class EndTravelPos {
+    TOP,
+    BOTTOM
+};
+}
 
 #endif

@@ -15,12 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core.h"
+#include "state.h"
 
-void setup() {
-    CORE::setup();
-}
+namespace STATE {
 
-void loop() {
-    CORE::process();
+StateEnum currentState = StateEnum::NOT_CONNECTED;
+
 }

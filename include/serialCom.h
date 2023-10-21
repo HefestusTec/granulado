@@ -20,29 +20,38 @@
 
 #include <Arduino.h>
 #include <FreeRTOS.h>
-#include <Preferences.h>
 
-#include "globalConst.h"
+#include "globals.h"
 #include "loadCell.h"
 #include "stepperMotor.h"
 
 namespace SC {
-// Serial communication class
+
+enum class ReceivedCommand {
+    CALIBRATE_KNOWN_WEIGHT = 'w',
+    CALIBRATE_Z_AXIS = 'z',
+    GET_POSITION = 'g',
+    GET_READINGS = 'r',
+    GET_Z_AXIS_LENGTH = 'j',
+    MOVE_TO_TOP = 't',
+    MOVE_X_MM = 'm',
+    NONE = '-',
+    PING = 'p',
+    SET_KNOWN_WEIGHT = 'x',
+    SET_Z_AXIS_LENGTH = 'y',
+    STOP = 's',
+    TARE_LOAD = '@'
+};
+
+struct ReceivedStruct {
+    ReceivedCommand command;
+    String data;
+};
+
 void ping();
 
-long int getMicrostepsByMillimeter();
-void setMicrostepsByMillimeter(long int microsteps);
-long int getMaxMicrostepsTravel();
-void setMaxMicrostepsTravel(long int microsteps);
-
-int getLoadCellKnownWeight();
-void setLoadCellKnownWeight(int knownWeight);
-float getCalibrationFactor();
-void setCalibrationFactor(float calibrationFactor);
-int getZAxisLengthMillimeters();
-void setZAxisLengthMillimeters(int zAxisLengthMillimeters);
-
-void decodeCommand(bool *stop);
+String readSerialMessage();
+ReceivedStruct getCommand();
 
 void setup();
 

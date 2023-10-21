@@ -14,13 +14,28 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
+#ifndef PERSIST_H
+#define PERSIST_H
 
-#include "core.h"
+#include <Preferences.h>
 
-void setup() {
-    CORE::setup();
-}
+#include "globals.h"
 
-void loop() {
-    CORE::process();
-}
+namespace PERS {
+long int getmicrosStepsByMillimeter();
+void setmicrosStepsByMillimeter(long int microsteps);
+long int getmaxMicrosStepsTravel();
+void setmaxMicrosStepsTravel(long int microsteps);
+
+int getLoadCellKnownWeight();
+void setLoadCellKnownWeight(int knownWeight);
+float getCalibrationFactor();
+void setCalibrationFactor(float calibrationFactor);
+int getZAxisLengthMillimeters();
+void setZAxisLengthMillimeters(int zAxisLengthMillimeters);
+
+void setup();
+
+}  // namespace PERS
+
+#endif

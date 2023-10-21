@@ -15,12 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "core.h"
+#ifndef CORE_H
+#define CORE_H
 
-void setup() {
-    CORE::setup();
-}
+#include "globals.h"
+#include "loadCell.h"
+#include "persist.h"
+#include "serialCom.h"
+#include "state.h"
+#include "stepperMotor.h"
 
-void loop() {
-    CORE::process();
-}
+namespace CORE {
+
+void setup();
+
+void process();  // Runs on the main core
+
+void comTask(void* parameter);  // Is setup to run on the second core
+
+void topStopInterrupt();
+void bottomStopInterrupt();
+
+void _tryConnect();
+
+}  // namespace CORE
+
+#endif
