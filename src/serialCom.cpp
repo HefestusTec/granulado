@@ -114,6 +114,7 @@ void sendMessage(SentMessage message, String data) {
 
 void setup() {
     Serial.begin(115200);
+    Serial.setTimeout(1);
     while (!Serial)
         delay(10);
 }
