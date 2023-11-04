@@ -41,6 +41,35 @@ float LoadCell::getInstaneousReading() {
     return weight;
 }
 
+double getTimeSinceStart() {
+    // Get the time elapsed since the start of the FreeRTOS system
+    int64_t timeSinceStart = esp_timer_get_time();
+
+    // Convert the time to seconds
+    return (double)timeSinceStart / 1000000.0;
+}
+
+int getDeltaLoad() {
+    // Get the current load
+    float currentLoad = getInstaneousReading();
+
+    double currentTime = getTimeSinceStart();
+
+    // Get the time elapsed since the last reading
+    double timeSinceLastStart = currentTime - lastReadingTime;
+    if (timeSinceLastStart == 0)
+        timeSinceLastStart = 0.0000001;
+
+    // Calculate the delta load
+    int deltaLoad = (currentLoad - lastLoad) / timeSinceLastStart;
+
+    // Update the last load and last reading time
+    lastLoad = currentLoad;
+    lastReadingTime = currentTime;
+
+    return deltaLoad;
+}
+
 void LoadCell::setup() {
     scale.begin(LOAD_CELL_DOUT_PIN, LOAD_CELL_SCK_PIN);
     calibrationFactor = PERS::getCalibrationFactor();

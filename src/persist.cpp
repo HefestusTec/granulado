@@ -78,6 +78,36 @@ void setZAxisLengthMillimeters(int zAxisLengthMillimeters) {
     preferences.putInt("zAxisLengthMillimeters", zAxisLengthMillimeters);
     preferences.end();
 }
+
+double getMaxDeltaLoad() {
+    return preferences.getDouble("maxDeltaLoad", 1000);
+}
+
+void setMaxDeltaLoad(double maxDeltaLoad) {
+    preferences.putDouble("maxDeltaLoad", maxDeltaLoad);
+    preferences.end();
+}
+
+double getMaxLoad() {
+    return preferences.getDouble("maxLoad", 1000);
+}
+
+void setMaxLoad(double maxLoad) {
+    preferences.putDouble("maxLoad", maxLoad);
+    preferences.end();
+}
+
+double getMaxTravel() {
+    return preferences.getDouble("maxTravel", 1000);
+}
+
+void setMaxTravel(double maxTravel) {
+    preferences.putDouble("maxTravel", maxTravel);
+    preferences.end();
+}
+
+
+
 void setup() {
     preferences.begin("granulado", false);
     preferences.end();

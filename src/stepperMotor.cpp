@@ -96,6 +96,7 @@ void StepperMotor::calibrateProcess() {
 
 long int StepperMotor::stopMotor() {
     stepper.stop();
+    SC::sendMessage(SC::SentMessage::STOP_ALERT, "");
     long int currentRelativeSteps = stepper.getStepsCompleted();
     motorPositionSteps += currentRelativeSteps - lastRelativePositionSteps;
     lastRelativePositionSteps = currentRelativeSteps;

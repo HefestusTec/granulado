@@ -38,6 +38,7 @@ class LoadCell {
    private:
     HX711 scale;
     float calibrationFactor = 1.0;
+    
 };
 
 }  // namespace LC
