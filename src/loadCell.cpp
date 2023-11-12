@@ -41,7 +41,7 @@ float LoadCell::getInstaneousReading() {
     return weight;
 }
 
-double getTimeSinceStart() {
+double LoadCell::getTimeSinceStart() {
     // Get the time elapsed since the start of the FreeRTOS system
     int64_t timeSinceStart = esp_timer_get_time();
 
@@ -49,7 +49,7 @@ double getTimeSinceStart() {
     return (double)timeSinceStart / 1000000.0;
 }
 
-int getDeltaLoad() {
+int LoadCell::getDeltaLoad() {
     // Get the current load
     float currentLoad = getInstaneousReading();
 

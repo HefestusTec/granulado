@@ -127,11 +127,13 @@ void comTask(void* parameter) {
 }
 
 void process() {
+    /*
     // Check if delta load is bigger than the maximum allowed
+    //Serial.print(PERS::getMaxDeltaLoad() + " " + loadCell.getDeltaLoad());
     if (loadCell.getDeltaLoad() > PERS::getMaxDeltaLoad()) {
         stepperMotor.stopMotor();
         STATE::currentState = STATE::StateEnum::IDLE;
-        SC::sendMessage(SC::SentMessage::ERROR, "Load is bigger than the maximum allowed");
+        SC::sendMessage(SC::SentMessage::ERROR, "Delta load is bigger than the maximum allowed");
     }
 
     // Check current load does not exceed the maximum allowed
@@ -140,6 +142,7 @@ void process() {
         STATE::currentState = STATE::StateEnum::IDLE;
         SC::sendMessage(SC::SentMessage::ERROR, "Load is bigger than the maximum allowed");
     }
+    */
 
     // Check if the stepper motor position is bigger than the maximum allowed
     if (stepperMotor.getMotorPositionStepsMillimeters() > PERS::getZAxisLengthMillimeters()) {
