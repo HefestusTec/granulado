@@ -21,6 +21,7 @@
 #include <Arduino.h>
 #include <FreeRTOS.h>
 
+#include "esp_timer.h"
 #include "globals.h"
 
 namespace SC {
@@ -39,8 +40,10 @@ enum class ReceivedCommand {
     SET_Z_AXIS_LENGTH = 'y',
     STOP = 's',
     TARE_LOAD = '@',
-    SET_MAX_LOAD = 'l',  // MUST implement
-    SET_MAX_TRAVEL = 'v'
+    GET_DELTA_LOAD = 'd',
+    SET_MAX_LOAD = 'l',
+    SET_MAX_TRAVEL = 'v',
+    SET_MAX_DELTA_LOAD = 'a',
 };
 
 enum class SentMessage {
@@ -51,10 +54,8 @@ enum class SentMessage {
     ERROR = 'e',
     TRIGGERED_BOTTOM_INTERRUPT = 'b',
     TRIGGERED_TOP_INTERRUPT = 't',
-    //
-    DELTA_LOAD = 'd',
-    S
-
+    CURRENT_DELTA_LOAD = 'd',
+    STOP_ALERT = 's',
 };
 
 struct MessageStruct {

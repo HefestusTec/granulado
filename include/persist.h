@@ -33,6 +33,12 @@ float getCalibrationFactor();
 void setCalibrationFactor(float calibrationFactor);
 int getZAxisLengthMillimeters();
 void setZAxisLengthMillimeters(int zAxisLengthMillimeters);
+double getMaxDeltaLoad();
+void setMaxDeltaLoad(double maxDeltaLoad);
+double getMaxLoad();
+void setMaxLoad(double maxLoad);
+double getMaxTravel();
+void setMaxTravel(double maxTravel);
 
 void setup();
 

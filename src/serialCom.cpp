@@ -81,6 +81,25 @@ MessageStruct getCommand() {
             result.command = ReceivedCommand::CALIBRATE_Z_AXIS;
             break;
 
+        case 'd':
+            result.command = ReceivedCommand::GET_DELTA_LOAD;
+            break;
+
+        case 'l':
+            result.command = ReceivedCommand::SET_MAX_LOAD;
+            result.data = comm.substring(1);
+            break;
+
+        case 'v':
+            result.command = ReceivedCommand::SET_MAX_TRAVEL;
+            result.data = comm.substring(1);
+            break;
+
+        case 'a':
+            result.command = ReceivedCommand::SET_MAX_DELTA_LOAD;
+            result.data = comm.substring(1);
+            break;
+
         default:
             result.command = ReceivedCommand::NONE;
             break;
@@ -105,6 +124,12 @@ void sendMessage(SentMessage message, String data) {
             break;
         case SentMessage::ERROR:
             messageCode = "e";
+            break;
+        case SentMessage::CURRENT_DELTA_LOAD:
+            messageCode = "d";
+            break;
+        case SentMessage::STOP_ALERT:
+            messageCode = "s";
             break;
         default:
             break;

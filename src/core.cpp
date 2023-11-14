@@ -100,12 +100,24 @@ void comTask(void* parameter) {
             case SC::ReceivedCommand::SET_Z_AXIS_LENGTH:
                 PERS::setZAxisLengthMillimeters(data.toInt());
                 break;
+            case SC::ReceivedCommand::SET_MAX_LOAD:
+                PERS::setMaxLoad(data.toInt());
+                break;            
+            case SC::ReceivedCommand::SET_MAX_TRAVEL:
+                PERS::setMaxTravel(data.toInt());
+                break;
+            case SC::ReceivedCommand::SET_MAX_DELTA_LOAD:
+                PERS::setMaxDeltaLoad(data.toInt());
+                break;
             case SC::ReceivedCommand::STOP:
                 stepperMotor.stopMotor();
                 STATE::currentState = STATE::StateEnum::IDLE;
                 break;
             case SC::ReceivedCommand::TARE_LOAD:
                 loadCell.tare();
+                break;
+            case SC::ReceivedCommand::GET_DELTA_LOAD:
+                SC::sendMessage(SC::SentMessage::CURRENT_DELTA_LOAD, String(loadCell.getDeltaLoad()));
                 break;
             default:
                 SC::sendMessage(SC::SentMessage::ERROR, "Invalid command");
@@ -115,6 +127,30 @@ void comTask(void* parameter) {
 }
 
 void process() {
+    /*
+    // Check if delta load is bigger than the maximum allowed
+    //Serial.print(PERS::getMaxDeltaLoad() + " " + loadCell.getDeltaLoad());
+    if (loadCell.getDeltaLoad() > PERS::getMaxDeltaLoad()) {
+        stepperMotor.stopMotor();
+        STATE::currentState = STATE::StateEnum::IDLE;
+        SC::sendMessage(SC::SentMessage::ERROR, "Delta load is bigger than the maximum allowed");
+    }
+
+    // Check current load does not exceed the maximum allowed
+    if (loadCell.getInstaneousReading() > PERS::getMaxLoad()) {
+        stepperMotor.stopMotor();
+        STATE::currentState = STATE::StateEnum::IDLE;
+        SC::sendMessage(SC::SentMessage::ERROR, "Load is bigger than the maximum allowed");
+    }
+    */
+
+    // Check if the stepper motor position is bigger than the maximum allowed
+    if (stepperMotor.getMotorPositionStepsMillimeters() > PERS::getZAxisLengthMillimeters()) {
+        stepperMotor.stopMotor();
+        STATE::currentState = STATE::StateEnum::IDLE;
+        SC::sendMessage(SC::SentMessage::ERROR, "Position is bigger than the maximum allowed");
+    }
+
     switch (STATE::currentState) {
         case STATE::StateEnum::CALIBRATING_Z_AXIS:
             stepperMotor.calibrateProcess();

@@ -34,10 +34,14 @@ class LoadCell {
     void calibrateKnownWeight();
     float getInstaneousReading();
     void setup();
+    double getTimeSinceStart();
+    int getDeltaLoad();
 
    private:
     HX711 scale;
     float calibrationFactor = 1.0;
+    float lastLoad = 0.0f;
+    double lastReadingTime = 0.0f;
 };
 
 }  // namespace LC
