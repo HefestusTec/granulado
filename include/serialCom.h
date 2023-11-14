@@ -38,7 +38,9 @@ enum class ReceivedCommand {
     SET_KNOWN_WEIGHT = 'x',
     SET_Z_AXIS_LENGTH = 'y',
     STOP = 's',
-    TARE_LOAD = '@'
+    TARE_LOAD = '@',
+    SET_MAX_LOAD = 'l',  // MUST implement
+    SET_MAX_TRAVEL = 'v'
 };
 
 enum class SentMessage {
@@ -49,6 +51,10 @@ enum class SentMessage {
     ERROR = 'e',
     TRIGGERED_BOTTOM_INTERRUPT = 'b',
     TRIGGERED_TOP_INTERRUPT = 't',
+    //
+    DELTA_LOAD = 'd',
+    S
+
 };
 
 struct MessageStruct {
