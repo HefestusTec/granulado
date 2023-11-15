@@ -24,7 +24,6 @@ StepperMotor::StepperMotor() : stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS) {
 
 void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
     stopMotor();
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "reachedInterrupt");
 
     if (topOrBottom == GLOBAL::EndTravelPos::TOP) {
         if (calibrationState == CalibratingState::MOVING_TO_TOP) {
@@ -70,7 +69,6 @@ void StepperMotor::moveMillimeters(int distance) {
 }
 
 int StepperMotor::getMotorPositionStepsMillimeters() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMotorPositionStepsMillimeters");
     return motorPositionSteps / microsStepsByMillimeter;
 }
 
@@ -107,7 +105,6 @@ void StepperMotor::calibrateProcess() {
 }
 
 long int StepperMotor::stopMotor() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "stopMotor");
     stepper.stop();
     SC::sendMessage(SC::SentMessage::STOP_ALERT, "");
     long int currentRelativeSteps = stepper.getStepsCompleted();

@@ -26,7 +26,9 @@ MessageStruct getCommand() {
 
     if (Serial.available() == 0) return result;
 
+    // decode utf-8
     String comm = Serial.readStringUntil('\n');
+
     char cmd = comm.charAt(0);
 
     switch (cmd) {
@@ -142,7 +144,7 @@ void sendMessage(SentMessage message, String data) {
 
 void setup() {
     Serial.begin(115200);
-    Serial.setTimeout(1);
+    Serial.setTimeout(10);
     while (!Serial)
         delay(10);
 }

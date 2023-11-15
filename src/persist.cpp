@@ -20,7 +20,6 @@ namespace PERS {
 Preferences preferences;
 
 long int getMicrosStepsByMillimeter() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMicrosStepsByMillimeter");
     preferences.begin("granulado", true);
     long int microsStepsByMillimeter = preferences.getLong("microsStepsByMillimeter", 1000);
     preferences.end();
@@ -35,7 +34,6 @@ void setMicrosStepsByMillimeter(long int microsSteps) {
 }
 
 long int getMaxMicrosStepsTravel() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMaxMicrosStepsTravel");
     preferences.begin("granulado", true);
     long int maxMicrosStepsTravel = preferences.getLong("maxMicrosStepsTravel", 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS);
     preferences.end();
@@ -50,7 +48,6 @@ void setMaxMicrosStepsTravel(long int microsSteps) {
 }
 
 int getLoadCellKnownWeight() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getLoadCellKnownWeight");
     preferences.begin("granulado", true);
     long int loadCellKnownWeight = preferences.getLong("loadCellKnownWeight", 1000);
     preferences.end();
@@ -65,7 +62,6 @@ void setLoadCellKnownWeight(int knownWeight) {
 }
 
 float getCalibrationFactor() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getCalibrationFactor");
     preferences.begin("granulado", true);
     float calibrationFactor = preferences.getFloat("calibrationFactor", 1.0);
     preferences.end();
@@ -79,7 +75,6 @@ void setCalibrationFactor(float calibrationFactor) {
 }
 
 int getZAxisLengthMillimeters() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getZAxisLengthMillimeters");
     return preferences.getInt("zAxisLengthMillimeters", 1000);
 }
 
@@ -90,7 +85,6 @@ void setZAxisLengthMillimeters(int zAxisLengthMillimeters) {
 }
 
 double getMaxDeltaLoad() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMaxDeltaLoad");
     return preferences.getDouble("maxDeltaLoad", 1000);
 }
 
@@ -101,7 +95,6 @@ void setMaxDeltaLoad(double maxDeltaLoad) {
 }
 
 double getMaxLoad() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMaxLoad");
     return preferences.getDouble("maxLoad", 1000);
 }
 
@@ -112,7 +105,6 @@ void setMaxLoad(double maxLoad) {
 }
 
 double getMaxTravel() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMaxTravel");
     return preferences.getDouble("maxTravel", 1000);
 }
 

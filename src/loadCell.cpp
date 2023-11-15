@@ -39,13 +39,11 @@ void LoadCell::calibrateKnownWeight() {
 }
 
 float LoadCell::getInstaneousReading() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getInstaneousReading");
     float weight = (float)scale.read() * calibrationFactor;
     return weight;
 }
 
 double LoadCell::getTimeSinceStart() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getTimeSinceStart");
     // Get the time elapsed since the start of the FreeRTOS system
     int64_t timeSinceStart = esp_timer_get_time();
 
@@ -54,7 +52,6 @@ double LoadCell::getTimeSinceStart() {
 }
 
 int LoadCell::getDeltaLoad() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getDeltaLoad");
     // Get the current load
     float currentLoad = getInstaneousReading();
 
