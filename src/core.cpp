@@ -35,6 +35,7 @@ void topStopInterrupt() {
 
 void bottomStopInterrupt() {
     stepperMotor.reachedInterrupt(GLOBAL::EndTravelPos::BOTTOM);
+    Serial.println("bottom");
     SC::sendMessage(SC::SentMessage::TRIGGERED_BOTTOM_INTERRUPT, "");
 }
 
@@ -102,7 +103,7 @@ void comTask(void* parameter) {
                 break;
             case SC::ReceivedCommand::SET_MAX_LOAD:
                 PERS::setMaxLoad(data.toInt());
-                break;            
+                break;
             case SC::ReceivedCommand::SET_MAX_TRAVEL:
                 PERS::setMaxTravel(data.toInt());
                 break;
@@ -145,7 +146,7 @@ void process() {
     */
 
     // Check if the stepper motor position is bigger than the maximum allowed
-    if (stepperMotor.getMotorPositionStepsMillimeters() > PERS::getZAxisLengthMillimeters()) {
+    if (stepperMotor.getMotorPositionStepsMillimeters() > stepperMotor.zAxisLength) {
         stepperMotor.stopMotor();
         STATE::currentState = STATE::StateEnum::IDLE;
         SC::sendMessage(SC::SentMessage::ERROR, "Position is bigger than the maximum allowed");

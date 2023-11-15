@@ -50,6 +50,7 @@ class StepperMotor {
 
     long int motorPositionSteps = 0;
     long int microsStepsByMillimeter = 0;
+    int zAxisLength = -1;
 
     CalibratingState calibrationState = CalibratingState::FINISHED;
 

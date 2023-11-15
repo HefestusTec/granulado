@@ -60,5 +60,6 @@
         "streambuf": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/Users/a823374/.platformio/packages/framework-espidf/components/bootloader_support/test_apps/bootloader_support"
 }

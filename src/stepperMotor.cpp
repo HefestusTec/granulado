@@ -123,6 +123,7 @@ void StepperMotor::setup() {
 
     microsStepsByMillimeter = PERS::getMicrosStepsByMillimeter();
     zAxisSizeInSteps = PERS::getMaxMicrosStepsTravel();
+    zAxisLength = PERS::getZAxisLengthMillimeters();
 
     stepper.enable();
 }

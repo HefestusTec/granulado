@@ -20,97 +20,141 @@ namespace PERS {
 Preferences preferences;
 
 long int getMicrosStepsByMillimeter() {
-    preferences.begin("granulado", true);
-    long int microsStepsByMillimeter = preferences.getLong("microsStepsByMillimeter", 1000);
+    preferences.begin("granulado", false);
+    if (!preferences.isKey("mSBM")) {
+        preferences.putLong("mSBM", 1000);
+    }
+    long int result = preferences.getLong("mSBM", 1000);
     preferences.end();
-    return microsStepsByMillimeter;
+    return result;
 }
 
 void setMicrosStepsByMillimeter(long int microsSteps) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMicrosStepsByMillimeter");
     preferences.begin("granulado", false);
-    preferences.putLong("microsStepsByMillimeter", microsSteps);
+    preferences.putLong("mSBM", microsSteps);
     preferences.end();
 }
 
 long int getMaxMicrosStepsTravel() {
-    preferences.begin("granulado", true);
-    long int maxMicrosStepsTravel = preferences.getLong("maxMicrosStepsTravel", 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS);
+    preferences.begin("granulado", false);
+    if (!preferences.isKey("mMST")) {
+        preferences.putLong("mMST", 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS);
+    }
+    long int result = preferences.getLong("mMST", 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS);
     preferences.end();
-    return maxMicrosStepsTravel;
+    return result;
 }
 
 void setMaxMicrosStepsTravel(long int microsSteps) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMaxMicrosStepsTravel");
     preferences.begin("granulado", false);
-    preferences.putLong("maxMicrosStepsTravel", microsSteps);
+    preferences.putLong("mMST", microsSteps);
     preferences.end();
 }
 
 int getLoadCellKnownWeight() {
-    preferences.begin("granulado", true);
-    long int loadCellKnownWeight = preferences.getLong("loadCellKnownWeight", 1000);
+    preferences.begin("granulado", false);
+    if (!preferences.isKey("lCKW")) {
+        preferences.putInt("lCKW", 1000);
+    }
+    long int result = preferences.getLong("lCKW", 1000);
     preferences.end();
-    return loadCellKnownWeight;
+    return result;
 }
 
 void setLoadCellKnownWeight(int knownWeight) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setLoadCellKnownWeight");
     preferences.begin("granulado", false);
-    preferences.putInt("loadCellKnownWeight", knownWeight);
+    preferences.putInt("lCKW", knownWeight);
     preferences.end();
 }
 
 float getCalibrationFactor() {
-    preferences.begin("granulado", true);
-    float calibrationFactor = preferences.getFloat("calibrationFactor", 1.0);
+    preferences.begin("granulado", false);
+    if (!preferences.isKey("cF")) {
+        preferences.putFloat("cF", 1.0);
+    }
+    float result = preferences.getFloat("cF", 1.0);
     preferences.end();
-    return calibrationFactor;
+    return result;
 }
 
 void setCalibrationFactor(float calibrationFactor) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setCalibrationFactor");
-    preferences.putFloat("calibrationFactor", calibrationFactor);
+    preferences.begin("granulado", false);
+    preferences.putFloat("cF", calibrationFactor);
     preferences.end();
 }
 
 int getZAxisLengthMillimeters() {
-    return preferences.getInt("zAxisLengthMillimeters", 1000);
+    preferences.begin("granulado", false);
+    if (!preferences.isKey("zALM")) {
+        preferences.putInt("zALM", 1000);
+    }
+    int result = preferences.getInt("zALM", 1000);
+    preferences.end();
+    return result;
 }
 
 void setZAxisLengthMillimeters(int zAxisLengthMillimeters) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setZAxisLengthMillimeters");
-    preferences.putInt("zAxisLengthMillimeters", zAxisLengthMillimeters);
+    preferences.begin("granulado", false);
+    preferences.putInt("zALM", zAxisLengthMillimeters);
     preferences.end();
 }
 
 double getMaxDeltaLoad() {
-    return preferences.getDouble("maxDeltaLoad", 1000);
+    // Check if exists, it don't, create it
+    preferences.begin("granulado", false);
+    if (!preferences.isKey("mDL")) {
+        preferences.putDouble("mDL", 1000);
+    }
+    double result = preferences.getDouble("mDL", 1000);
+    preferences.end();
+    return result;
 }
 
 void setMaxDeltaLoad(double maxDeltaLoad) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMaxDeltaLoad");
-    preferences.putDouble("maxDeltaLoad", maxDeltaLoad);
+    preferences.begin("granulado", false);
+    preferences.putDouble("mDL", maxDeltaLoad);
     preferences.end();
 }
 
 double getMaxLoad() {
-    return preferences.getDouble("maxLoad", 1000);
+    // Check if exists, it don't, create it
+    preferences.begin("granulado", false);
+    if (!preferences.isKey("mL")) {
+        preferences.putDouble("mL", 1000);
+    }
+    double result = preferences.getDouble("mL", 1000);
+    preferences.end();
+    return result;
 }
 
 void setMaxLoad(double maxLoad) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMaxLoad");
-    preferences.putDouble("maxLoad", maxLoad);
+    preferences.begin("granulado", false);
+    preferences.putDouble("mL", maxLoad);
     preferences.end();
 }
 
 double getMaxTravel() {
-    return preferences.getDouble("maxTravel", 1000);
+    // Check if exists, it don't, create it
+    preferences.begin("granulado", false);
+    if (!preferences.isKey("mT")) {
+        preferences.putDouble("mT", 1000);
+    }
+    double result = preferences.getDouble("mT", 1000);
+    preferences.end();
+    return result;
 }
 
 void setMaxTravel(double maxTravel) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMaxTravel");
-    preferences.putDouble("maxTravel", maxTravel);
+    preferences.begin("granulado", false);
+    preferences.putDouble("mT", maxTravel);
     preferences.end();
 }
 
