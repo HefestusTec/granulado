@@ -43,9 +43,9 @@ void setup() {
     pinMode(TOP_STOPPER_PIN, INPUT_PULLUP);
     pinMode(BOTTOM_STOPPER_PIN, INPUT_PULLUP);
     // Attach interrupt to top sensor
-    attachInterrupt(TOP_STOPPER_PIN, topStopInterrupt, FALLING);
-    // Attach interrupt to bottom sensor
-    attachInterrupt(BOTTOM_STOPPER_PIN, bottomStopInterrupt, FALLING);
+    // attachInterrupt(TOP_STOPPER_PIN, topStopInterrupt, FALLING);
+    // // Attach interrupt to bottom sensor
+    // attachInterrupt(BOTTOM_STOPPER_PIN, bottomStopInterrupt, FALLING);
 
     PERS::setup();
     SC::setup();
@@ -147,14 +147,29 @@ void process() {
         STATE::currentState = STATE::StateEnum::IDLE;
         SC::sendMessage(SC::SentMessage::ERROR, "Load is bigger than the maximum allowed");
     }
-    */
+
 
     // Check if the stepper motor position is bigger than the maximum allowed
     if (stepperMotor.getMotorPositionStepsMillimeters() > stepperMotor.zAxisLength) {
         stepperMotor.stopMotor();
         STATE::currentState = STATE::StateEnum::IDLE;
         SC::sendMessage(SC::SentMessage::ERROR, "Position is bigger than the maximum allowed");
-    } 
+    }
+    */
+
+    bool isOnTopSwitch = digitalRead(TOP_STOPPER_PIN);
+    if (isOnTopSwitch != lastIsOnTopSwitch) {
+        topStopInterrupt();
+        lastIsOnTopSwitch = isOnTopSwitch;
+    }
+
+    bool isOnBottomSwitch = digitalRead(BOTTOM_STOPPER_PIN);
+    if (isOnBottomSwitch != lastIsOnBottomSwitch) {
+        bottomStopInterrupt();
+        lastIsOnBottomSwitch = isOnBottomSwitch;
+    }
+
+    stepperMotor.process();
 
     switch (STATE::currentState) {
         case STATE::StateEnum::CALIBRATING_Z_AXIS:

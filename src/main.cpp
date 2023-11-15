@@ -14,9 +14,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Granulado.  If not, see <http://www.gnu.org/licenses/>.
+#include <Arduino.h>
+
 #include "core.h"
 
 void setup() {
+    pinMode(CW_PLUS, OUTPUT);
+    pinMode(CP_PLUS, OUTPUT);
+    pinMode(EN_PLUS, OUTPUT);
+
     CORE::setup();
 }
 

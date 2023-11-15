@@ -46,7 +46,11 @@ class StepperMotor {
     long stopMotor();
     void setup();
 
+
+    void process();
+
     void reachedInterrupt(GLOBAL::EndTravelPos topOrBottom);
+
 
     long int motorPositionSteps = 0;
     long int microsStepsByMillimeter = 0;

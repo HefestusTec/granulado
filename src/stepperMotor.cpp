@@ -19,7 +19,7 @@
 
 namespace SM {
 
-StepperMotor::StepperMotor() : stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS) {
+StepperMotor::StepperMotor() : stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS, EN_PLUS) {
 }
 
 void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
@@ -48,6 +48,7 @@ void StepperMotor::moveToTop() {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop: Already at top");
         return;
     }
+    stepper.disable();
     stepper.startMove(INT_MAX);
 }
 
@@ -57,16 +58,20 @@ void StepperMotor::moveToBottom() {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom: Already at bottom");
         return;
     }
+    stepper.disable();
     stepper.startMove(INT_MIN);
 }
 
 void StepperMotor::moveMillimeters(int distance) {
+    /*
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveMillimeters: " + String(distance) + " mm");
     if (distance >= 0 ? digitalRead(BOTTOM_STOPPER_PIN) : digitalRead(TOP_STOPPER_PIN)) {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "Motor already at end");
         return;
     }
-    stepper.move(distance);
+    */
+    stepper.disable();
+    stepper.startMove(distance);
 }
 
 int StepperMotor::getMotorPositionStepsMillimeters() {
@@ -94,6 +99,7 @@ void StepperMotor::calibrateProcess() {
             break;
 
         case CalibratingState::FINISHED:
+            stepper.enable();
             STATE::currentState = STATE::StateEnum::IDLE;
             microsStepsByMillimeter = zAxisSizeInSteps / PERS::getZAxisLengthMillimeters();
             PERS::setMicrosStepsByMillimeter(microsStepsByMillimeter);
@@ -107,6 +113,7 @@ void StepperMotor::calibrateProcess() {
 
 long int StepperMotor::stopMotor() {
     stepper.stop();
+    stepper.enable();
     SC::sendMessage(SC::SentMessage::STOP_ALERT, "");
     long int currentRelativeSteps = stepper.getStepsCompleted();
     motorPositionSteps += currentRelativeSteps - lastRelativePositionSteps;
@@ -122,6 +129,12 @@ void StepperMotor::setup() {
     zAxisSizeInSteps = PERS::getMaxMicrosStepsTravel();
     zAxisLength = PERS::getZAxisLengthMillimeters();
 
-    stepper.enable();
+    stepper.disable();
+    // delay(1000);
 }
+
+void StepperMotor::process() {
+    unsigned wait_time_micros = stepper.nextAction();
+}
+
 }  // namespace SM

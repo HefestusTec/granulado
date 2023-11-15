@@ -29,7 +29,7 @@
 #define BOTTOM_STOPPER_PIN 15
 // Stepper motor steps
 #define MOTOR_STEPS 256
-#define MOTOR_MICROS_STEPS 256
+#define MOTOR_MICROS_STEPS 2  // 1 for whole 2 for 2 micro-steps
 #define MOTOR_RPM 120
 
 #define LOAD_CELL_DOUT_PIN 16
