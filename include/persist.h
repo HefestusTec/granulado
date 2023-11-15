@@ -20,6 +20,7 @@
 #include <Preferences.h>
 
 #include "globals.h"
+#include "serialCom.h"
 
 namespace PERS {
 long int getMicrosStepsByMillimeter();

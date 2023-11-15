@@ -131,6 +131,9 @@ void sendMessage(SentMessage message, String data) {
         case SentMessage::STOP_ALERT:
             messageCode = "s";
             break;
+        case SentMessage::INFO_DEBUG:
+            messageCode = "i";
+            break;
         default:
             break;
     }

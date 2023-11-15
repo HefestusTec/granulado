@@ -56,6 +56,7 @@ enum class SentMessage {
     TRIGGERED_TOP_INTERRUPT = 't',
     CURRENT_DELTA_LOAD = 'd',
     STOP_ALERT = 's',
+    INFO_DEBUG = 'i',
 };
 
 struct MessageStruct {

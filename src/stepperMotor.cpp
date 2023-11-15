@@ -24,6 +24,7 @@ StepperMotor::StepperMotor() : stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS) {
 
 void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
     stopMotor();
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "reachedInterrupt");
 
     if (topOrBottom == GLOBAL::EndTravelPos::TOP) {
         if (calibrationState == CalibratingState::MOVING_TO_TOP) {
@@ -42,26 +43,39 @@ void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
 }
 
 void StepperMotor::moveToTop() {
-    if (digitalRead(TOP_STOPPER_PIN)) return;
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop");
+    if (digitalRead(TOP_STOPPER_PIN)) {
+        SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop: Already at top");
+        return;
+    }
     stepper.startMove(INT_MAX);
 }
 
 void StepperMotor::moveToBottom() {
-    if (digitalRead(BOTTOM_STOPPER_PIN)) return;
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom");
+    if (digitalRead(BOTTOM_STOPPER_PIN)) {
+        SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom: Already at bottom");
+        return;
+    }
     stepper.startMove(INT_MIN);
 }
 
 void StepperMotor::moveMillimeters(int distance) {
-    if (distance >= 0 ? digitalRead(BOTTOM_STOPPER_PIN) : digitalRead(TOP_STOPPER_PIN))
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveMillimeters: " + String(distance) + " mm");
+    if (distance >= 0 ? digitalRead(BOTTOM_STOPPER_PIN) : digitalRead(TOP_STOPPER_PIN)) {
+        SC::sendMessage(SC::SentMessage::INFO_DEBUG, "Motor already at end");
         return;
+    }
     stepper.move(distance);
 }
 
 int StepperMotor::getMotorPositionStepsMillimeters() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMotorPositionStepsMillimeters");
     return motorPositionSteps / microsStepsByMillimeter;
 }
 
 void StepperMotor::calibrate() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrate");
     STATE::currentState = STATE::StateEnum::CALIBRATING_Z_AXIS;
     calibrationState = CalibratingState::STARTED;
 }
@@ -71,22 +85,20 @@ void StepperMotor::calibrateProcess() {
         case CalibratingState::STARTED:
             calibrationState = CalibratingState::MOVING_TO_TOP;
             moveToTop();
-            Serial.println("Calibration started");
+            SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrateProcess: Calibration started");
             break;
 
         case CalibratingState::MOVING_TO_TOP:
-            Serial.println("Calibration Moving to top");
             break;
 
         case CalibratingState::MOVING_TO_BOTTOM:
-            Serial.println("Calibration Moving to bottom");
             break;
 
         case CalibratingState::FINISHED:
             STATE::currentState = STATE::StateEnum::IDLE;
             microsStepsByMillimeter = zAxisSizeInSteps / PERS::getZAxisLengthMillimeters();
             PERS::setMicrosStepsByMillimeter(microsStepsByMillimeter);
-            Serial.println("Calibration finished");
+            SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrateProcess: Calibration finished");
             break;
 
         default:
@@ -95,6 +107,7 @@ void StepperMotor::calibrateProcess() {
 }
 
 long int StepperMotor::stopMotor() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "stopMotor");
     stepper.stop();
     SC::sendMessage(SC::SentMessage::STOP_ALERT, "");
     long int currentRelativeSteps = stepper.getStepsCompleted();

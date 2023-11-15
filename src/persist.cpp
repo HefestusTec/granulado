@@ -20,6 +20,7 @@ namespace PERS {
 Preferences preferences;
 
 long int getMicrosStepsByMillimeter() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMicrosStepsByMillimeter");
     preferences.begin("granulado", true);
     long int microsStepsByMillimeter = preferences.getLong("microsStepsByMillimeter", 1000);
     preferences.end();
@@ -27,12 +28,14 @@ long int getMicrosStepsByMillimeter() {
 }
 
 void setMicrosStepsByMillimeter(long int microsSteps) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMicrosStepsByMillimeter");
     preferences.begin("granulado", false);
     preferences.putLong("microsStepsByMillimeter", microsSteps);
     preferences.end();
 }
 
 long int getMaxMicrosStepsTravel() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMaxMicrosStepsTravel");
     preferences.begin("granulado", true);
     long int maxMicrosStepsTravel = preferences.getLong("maxMicrosStepsTravel", 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS);
     preferences.end();
@@ -40,12 +43,14 @@ long int getMaxMicrosStepsTravel() {
 }
 
 void setMaxMicrosStepsTravel(long int microsSteps) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMaxMicrosStepsTravel");
     preferences.begin("granulado", false);
     preferences.putLong("maxMicrosStepsTravel", microsSteps);
     preferences.end();
 }
 
 int getLoadCellKnownWeight() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getLoadCellKnownWeight");
     preferences.begin("granulado", true);
     long int loadCellKnownWeight = preferences.getLong("loadCellKnownWeight", 1000);
     preferences.end();
@@ -53,12 +58,14 @@ int getLoadCellKnownWeight() {
 }
 
 void setLoadCellKnownWeight(int knownWeight) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setLoadCellKnownWeight");
     preferences.begin("granulado", false);
     preferences.putInt("loadCellKnownWeight", knownWeight);
     preferences.end();
 }
 
 float getCalibrationFactor() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getCalibrationFactor");
     preferences.begin("granulado", true);
     float calibrationFactor = preferences.getFloat("calibrationFactor", 1.0);
     preferences.end();
@@ -66,47 +73,54 @@ float getCalibrationFactor() {
 }
 
 void setCalibrationFactor(float calibrationFactor) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setCalibrationFactor");
     preferences.putFloat("calibrationFactor", calibrationFactor);
     preferences.end();
 }
 
 int getZAxisLengthMillimeters() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getZAxisLengthMillimeters");
     return preferences.getInt("zAxisLengthMillimeters", 1000);
 }
 
 void setZAxisLengthMillimeters(int zAxisLengthMillimeters) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setZAxisLengthMillimeters");
     preferences.putInt("zAxisLengthMillimeters", zAxisLengthMillimeters);
     preferences.end();
 }
 
 double getMaxDeltaLoad() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMaxDeltaLoad");
     return preferences.getDouble("maxDeltaLoad", 1000);
 }
 
 void setMaxDeltaLoad(double maxDeltaLoad) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMaxDeltaLoad");
     preferences.putDouble("maxDeltaLoad", maxDeltaLoad);
     preferences.end();
 }
 
 double getMaxLoad() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMaxLoad");
     return preferences.getDouble("maxLoad", 1000);
 }
 
 void setMaxLoad(double maxLoad) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMaxLoad");
     preferences.putDouble("maxLoad", maxLoad);
     preferences.end();
 }
 
 double getMaxTravel() {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "getMaxTravel");
     return preferences.getDouble("maxTravel", 1000);
 }
 
 void setMaxTravel(double maxTravel) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMaxTravel");
     preferences.putDouble("maxTravel", maxTravel);
     preferences.end();
 }
-
-
 
 void setup() {
     preferences.begin("granulado", false);
