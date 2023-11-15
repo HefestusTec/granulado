@@ -134,7 +134,7 @@ void StepperMotor::setup() {
 }
 
 void StepperMotor::process() {
-    unsigned wait_time_micros = stepper.nextAction();
+    stepper.nextAction();
 }
 
 }  // namespace SM
