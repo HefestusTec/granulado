@@ -35,15 +35,17 @@ void topStopInterrupt() {
 
 void bottomStopInterrupt() {
     stepperMotor.reachedInterrupt(GLOBAL::EndTravelPos::BOTTOM);
-    Serial.println("bottom");
     SC::sendMessage(SC::SentMessage::TRIGGERED_BOTTOM_INTERRUPT, "");
 }
 
 void setup() {
+    // Configure stopper pin to read HIGH unless grounded
+    pinMode(TOP_STOPPER_PIN, INPUT_PULLUP);
+    pinMode(BOTTOM_STOPPER_PIN, INPUT_PULLUP);
     // Attach interrupt to top sensor
-    attachInterrupt(digitalPinToInterrupt(TOP_STOPPER_PIN), topStopInterrupt, RISING);
+    attachInterrupt(TOP_STOPPER_PIN, topStopInterrupt, FALLING);
     // Attach interrupt to bottom sensor
-    attachInterrupt(digitalPinToInterrupt(BOTTOM_STOPPER_PIN), bottomStopInterrupt, RISING);
+    attachInterrupt(BOTTOM_STOPPER_PIN, bottomStopInterrupt, FALLING);
 
     PERS::setup();
     SC::setup();
@@ -54,7 +56,7 @@ void setup() {
     xTaskCreatePinnedToCore(
         comTask,         /* Function to implement the task */
         "ComTask",       /* Name of the task */
-        10000,           /* Stack size in words */
+        100000,          /* Stack size in words */
         NULL,            /* Task input parameter */
         0,               /* Priority of the task */
         &comTaskHandler, /* Task handle. */
@@ -124,6 +126,8 @@ void comTask(void* parameter) {
                 SC::sendMessage(SC::SentMessage::ERROR, "Invalid command");
                 break;
         }
+
+        SC::sendSerialBuffer();
     }
 }
 
@@ -150,7 +154,7 @@ void process() {
         stepperMotor.stopMotor();
         STATE::currentState = STATE::StateEnum::IDLE;
         SC::sendMessage(SC::SentMessage::ERROR, "Position is bigger than the maximum allowed");
-    }
+    } 
 
     switch (STATE::currentState) {
         case STATE::StateEnum::CALIBRATING_Z_AXIS:

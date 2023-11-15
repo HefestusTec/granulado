@@ -24,7 +24,7 @@ StepperMotor::StepperMotor() : stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS) {
 
 void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
     stopMotor();
-
+    /*
     if (topOrBottom == GLOBAL::EndTravelPos::TOP) {
         if (calibrationState == CalibratingState::MOVING_TO_TOP) {
             calibrationState = CalibratingState::MOVING_TO_BOTTOM;
@@ -39,6 +39,7 @@ void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
             moveMillimeters(-10);
         }
     }
+    */
 }
 
 void StepperMotor::moveToTop() {
@@ -116,10 +117,6 @@ long int StepperMotor::stopMotor() {
 void StepperMotor::setup() {
     // Initialize stepper motor
     stepper.begin(MOTOR_RPM, MOTOR_MICROS_STEPS);
-
-    // Configure stopper pin to read HIGH unless grounded
-    pinMode(TOP_STOPPER_PIN, INPUT_PULLUP);
-    pinMode(BOTTOM_STOPPER_PIN, INPUT_PULLUP);
 
     microsStepsByMillimeter = PERS::getMicrosStepsByMillimeter();
     zAxisSizeInSteps = PERS::getMaxMicrosStepsTravel();
