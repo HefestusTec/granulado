@@ -35,15 +35,14 @@ void topStopInterrupt() {
 
 void bottomStopInterrupt() {
     stepperMotor.reachedInterrupt(GLOBAL::EndTravelPos::BOTTOM);
-    Serial.println("bottom");
     SC::sendMessage(SC::SentMessage::TRIGGERED_BOTTOM_INTERRUPT, "");
 }
 
 void setup() {
     // Attach interrupt to top sensor
-    attachInterrupt(digitalPinToInterrupt(TOP_STOPPER_PIN), topStopInterrupt, RISING);
+    attachInterrupt(digitalPinToInterrupt(TOP_STOPPER_PIN), topStopInterrupt, FALLING);
     // Attach interrupt to bottom sensor
-    attachInterrupt(digitalPinToInterrupt(BOTTOM_STOPPER_PIN), bottomStopInterrupt, RISING);
+    attachInterrupt(digitalPinToInterrupt(BOTTOM_STOPPER_PIN), bottomStopInterrupt, FALLING);
 
     PERS::setup();
     SC::setup();
@@ -123,6 +122,11 @@ void comTask(void* parameter) {
             default:
                 SC::sendMessage(SC::SentMessage::ERROR, "Invalid command");
                 break;
+        }
+
+        if (SC::serialBuffer.length()) {
+            Serial.print(SC::serialBuffer);
+            SC::serialBuffer.clear();
         }
     }
 }

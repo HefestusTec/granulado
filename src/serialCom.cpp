@@ -19,7 +19,10 @@
 
 namespace SC {
 
-MessageStruct getCommand() {
+String serialBuffer = "";
+
+MessageStruct
+getCommand() {
     MessageStruct result;
     result.command = ReceivedCommand::NONE;
     result.data = "";
@@ -109,6 +112,10 @@ MessageStruct getCommand() {
     return result;
 }
 
+void addToSerialBuffer(String message) {
+    SC::serialBuffer.concat(message);
+}
+
 void sendMessage(SentMessage message, String data) {
     String messageCode = "e";
     switch (message) {
@@ -139,7 +146,7 @@ void sendMessage(SentMessage message, String data) {
         default:
             break;
     }
-    Serial.println(messageCode + data);
+    addToSerialBuffer(messageCode + data + "\n");
 }
 
 void setup() {

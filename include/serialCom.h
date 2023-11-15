@@ -67,6 +67,10 @@ struct MessageStruct {
 String readSerialMessage();
 MessageStruct getCommand();
 
+extern String serialBuffer;
+
+void addToSerialBuffer();
+
 void sendMessage(SentMessage message, String data);
 
 void setup();
