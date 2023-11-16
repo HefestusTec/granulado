@@ -35,13 +35,16 @@ class LoadCell {
     float getInstaneousReading();
     void setup();
     double getTimeSinceStart();
-    int getDeltaLoad();
+    float getDeltaLoad();
 
    private:
+    float updateDeltaLoad(float currentLoad);
+
     HX711 scale;
     float calibrationFactor = 1.0;
     float lastLoad = 0.0f;
     double lastReadingTime = 0.0f;
+    float deltaLoad = 0.0f;
 };
 
 }  // namespace LC

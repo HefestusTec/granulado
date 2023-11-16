@@ -31,16 +31,18 @@ void LoadCell::tare() {
 void LoadCell::calibrateKnownWeight() {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrateKnownWeight");
     STATE::currentState = STATE::StateEnum::CALIBRATING_KNOWN_WEIGHT;
-    long reading = scale.get_units(80);
-    calibrationFactor = PERS::getLoadCellKnownWeight() / reading;  // Divide reading from known weight
-    scale.set_scale(calibrationFactor);                            // Adjust to this calibration factor
-    PERS::setCalibrationFactor(calibrationFactor);                 // Save calibration factor to EEPROM
+    float knownWeight = PERS::getLoadCellKnownWeight();  // Get the known weight from EEPROM
+    float calibrationFactor = scale.get_units(10) / (knownWeight / 1000);
+    PERS::setCalibrationFactor(calibrationFactor);  // Save calibration factor to EEPROM
+    scale.set_scale(calibrationFactor);             // Adjust to this calibration factor
     STATE::currentState = STATE::StateEnum::IDLE;
 }
 
 float LoadCell::getInstaneousReading() {
-    float weight = (float)scale.read() * calibrationFactor;
-    return weight;
+    float currentLoad = scale.get_units(1) * 1000;  // Get current load in grams
+    deltaLoad = updateDeltaLoad(currentLoad);
+
+    return currentLoad;
 }
 
 double LoadCell::getTimeSinceStart() {
@@ -51,10 +53,11 @@ double LoadCell::getTimeSinceStart() {
     return (double)timeSinceStart / 1000000.0;
 }
 
-int LoadCell::getDeltaLoad() {
-    // Get the current load
-    float currentLoad = getInstaneousReading();
+float LoadCell::getDeltaLoad() {
+    return deltaLoad;
+}
 
+float LoadCell::updateDeltaLoad(float currentLoad) {
     double currentTime = getTimeSinceStart();
 
     // Get the time elapsed since the last reading
@@ -63,18 +66,18 @@ int LoadCell::getDeltaLoad() {
         timeSinceLastStart = 0.0000001;
 
     // Calculate the delta load
-    int deltaLoad = (currentLoad - lastLoad) / timeSinceLastStart;
+    float newDeltaLoad = (currentLoad - lastLoad) / timeSinceLastStart;
 
     // Update the last load and last reading time
     lastLoad = currentLoad;
     lastReadingTime = currentTime;
 
-    return deltaLoad;
+    return newDeltaLoad;
 }
 
 void LoadCell::setup() {
-    scale.begin(LOAD_CELL_DOUT_PIN, LOAD_CELL_SCK_PIN);
     calibrationFactor = PERS::getCalibrationFactor();
+    scale.begin(LOAD_CELL_DOUT_PIN, LOAD_CELL_SCK_PIN);
     scale.power_up();
     scale.set_scale(calibrationFactor);  // this value is obtained by calibrating the scale with known weights; see the README for details
 }
