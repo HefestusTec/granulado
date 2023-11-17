@@ -38,8 +38,8 @@ void LoadCell::calibrateKnownWeight() {
     STATE::currentState = STATE::StateEnum::IDLE;
 }
 
-float LoadCell::getInstaneousReading() {
-    float currentLoad = scale.get_units(1) * 1000;  // Get current load in grams
+float LoadCell::getInstantaneousReading() {
+    float currentLoad = scale.get_units(1);  // Get current load in grams
     deltaLoad = updateDeltaLoad(currentLoad);
 
     return currentLoad;

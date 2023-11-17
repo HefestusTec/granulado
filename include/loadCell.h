@@ -32,7 +32,7 @@ class LoadCell {
 
     void tare();
     void calibrateKnownWeight();
-    float getInstaneousReading();
+    float getInstantaneousReading();
     void setup();
     double getTimeSinceStart();
     float getDeltaLoad();

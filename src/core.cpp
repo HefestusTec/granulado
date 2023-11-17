@@ -83,7 +83,7 @@ void comTask(void* parameter) {
                 SC::sendMessage(SC::SentMessage::CURRENT_POSITION, String(stepperMotor.getMotorPositionStepsMillimeters()));
                 break;
             case SC::ReceivedCommand::GET_READINGS:
-                SC::sendMessage(SC::SentMessage::CURRENT_READING, String(loadCell.getInstaneousReading(), 5));
+                SC::sendMessage(SC::SentMessage::CURRENT_READING, String(loadCell.getInstantaneousReading(), 5));
                 break;
             case SC::ReceivedCommand::GET_Z_AXIS_LENGTH:
                 SC::sendMessage(SC::SentMessage::Z_AXIS_LENGTH, String(PERS::getZAxisLengthMillimeters()));
@@ -104,13 +104,13 @@ void comTask(void* parameter) {
                 PERS::setZAxisLengthMillimeters(data.toInt());
                 break;
             case SC::ReceivedCommand::SET_MAX_LOAD:
-                PERS::setMaxLoad(data.toInt());
+                PERS::setMaxLoad(data.toDouble());
                 break;
             case SC::ReceivedCommand::SET_MAX_TRAVEL:
                 PERS::setMaxTravel(data.toInt());
                 break;
             case SC::ReceivedCommand::SET_MAX_DELTA_LOAD:
-                PERS::setMaxDeltaLoad(data.toInt());
+                PERS::setMaxDeltaLoad(data.toDouble());
                 break;
             case SC::ReceivedCommand::STOP:
                 stepperMotor.stopMotor();

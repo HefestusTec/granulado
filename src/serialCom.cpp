@@ -162,14 +162,14 @@ void sendMessage(SentMessage message, String data) {
             break;
         default:
             messageCode = "e";
-            data += " - Mensagem não reconhecida"; 
+            data += " - Mensagem não reconhecida";
             break;
     }
     addToSerialBuffer(messageCode + data + "\n");
 }
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(57600);
     Serial.setTimeout(10);
     while (!Serial)
         delay(10);
