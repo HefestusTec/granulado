@@ -17,7 +17,6 @@
 #include "core.h"
 
 namespace CORE {
-TaskHandle_t comTaskHandler;
 
 SC::ReceivedCommand currentCommand = SC::ReceivedCommand::NONE;
 
@@ -51,112 +50,74 @@ void setup() {
     SC::setup();
     loadCell.setup();
     stepperMotor.setup();
-
-    // Creates serial com task
-    xTaskCreatePinnedToCore(
-        comTask,         /* Function to implement the task */
-        "ComTask",       /* Name of the task */
-        100000,          /* Stack size in words */
-        NULL,            /* Task input parameter */
-        0,               /* Priority of the task */
-        &comTaskHandler, /* Task handle. */
-        0);              /* Core where the task should run */
 }
 
-void comTask(void* parameter) {
-    while (true) {
-        vTaskDelay(10);
-        SC::MessageStruct received = SC::getCommand();
-        currentCommand = received.command;
-        String data = received.data;
+void comTask() {
+    SC::MessageStruct received = SC::getCommand();
+    currentCommand = received.command;
+    String data = received.data;
 
-        if (currentCommand == SC::ReceivedCommand::NONE) continue;
+    if (currentCommand == SC::ReceivedCommand::NONE) return;
 
-        switch (currentCommand) {
-            case SC::ReceivedCommand::CALIBRATE_KNOWN_WEIGHT:
-                loadCell.calibrateKnownWeight();
-                break;
-            case SC::ReceivedCommand::CALIBRATE_Z_AXIS:
-                stepperMotor.calibrate();
-                break;
-            case SC::ReceivedCommand::GET_POSITION:
-                SC::sendMessage(SC::SentMessage::CURRENT_POSITION, String(stepperMotor.getMotorPositionStepsMillimeters()));
-                break;
-            case SC::ReceivedCommand::GET_READINGS:
-                SC::sendMessage(SC::SentMessage::CURRENT_READING, String(loadCell.getInstaneousReading(), 5));
-                break;
-            case SC::ReceivedCommand::GET_Z_AXIS_LENGTH:
-                SC::sendMessage(SC::SentMessage::Z_AXIS_LENGTH, String(PERS::getZAxisLengthMillimeters()));
-                break;
-            case SC::ReceivedCommand::MOVE_TO_TOP:
-                stepperMotor.moveToTop();
-                break;
-            case SC::ReceivedCommand::MOVE_X_MM:
-                stepperMotor.moveMillimeters(data.toInt());
-                break;
-            case SC::ReceivedCommand::PING:
-                SC::sendMessage(SC::SentMessage::PING_RESPONSE, "");
-                break;
-            case SC::ReceivedCommand::SET_KNOWN_WEIGHT:
-                PERS::setLoadCellKnownWeight(data.toInt());
-                break;
-            case SC::ReceivedCommand::SET_Z_AXIS_LENGTH:
-                PERS::setZAxisLengthMillimeters(data.toInt());
-                break;
-            case SC::ReceivedCommand::SET_MAX_LOAD:
-                PERS::setMaxLoad(data.toInt());
-                break;
-            case SC::ReceivedCommand::SET_MAX_TRAVEL:
-                PERS::setMaxTravel(data.toInt());
-                break;
-            case SC::ReceivedCommand::SET_MAX_DELTA_LOAD:
-                PERS::setMaxDeltaLoad(data.toInt());
-                break;
-            case SC::ReceivedCommand::STOP:
-                stepperMotor.stopMotor();
-                STATE::currentState = STATE::StateEnum::IDLE;
-                break;
-            case SC::ReceivedCommand::TARE_LOAD:
-                loadCell.tare();
-                break;
-            case SC::ReceivedCommand::GET_DELTA_LOAD:
-                SC::sendMessage(SC::SentMessage::CURRENT_DELTA_LOAD, String(loadCell.getDeltaLoad()));
-                break;
-            default:
-                SC::sendMessage(SC::SentMessage::ERROR, "Invalid command");
-                break;
-        }
-
-        SC::sendSerialBuffer();
+    switch (currentCommand) {
+        case SC::ReceivedCommand::CALIBRATE_KNOWN_WEIGHT:
+            loadCell.calibrateKnownWeight();
+            break;
+        case SC::ReceivedCommand::CALIBRATE_Z_AXIS:
+            stepperMotor.calibrate();
+            break;
+        case SC::ReceivedCommand::GET_POSITION:
+            SC::sendMessage(SC::SentMessage::CURRENT_POSITION, String(stepperMotor.getMotorPositionStepsMillimeters()));
+            break;
+        case SC::ReceivedCommand::GET_READINGS:
+            SC::sendMessage(SC::SentMessage::CURRENT_READING, String(loadCell.getInstantaneousReading(), 5));
+            break;
+        case SC::ReceivedCommand::GET_Z_AXIS_LENGTH:
+            SC::sendMessage(SC::SentMessage::Z_AXIS_LENGTH, String(PERS::getZAxisLengthMillimeters()));
+            break;
+        case SC::ReceivedCommand::MOVE_TO_TOP:
+            stepperMotor.moveToTop();
+            break;
+        case SC::ReceivedCommand::MOVE_X_MM:
+            stepperMotor.moveMillimeters(data.toInt());
+            break;
+        case SC::ReceivedCommand::PING:
+            SC::sendMessage(SC::SentMessage::PING_RESPONSE, "");
+            break;
+        case SC::ReceivedCommand::SET_KNOWN_WEIGHT:
+            PERS::setLoadCellKnownWeight(data.toInt());
+            break;
+        case SC::ReceivedCommand::SET_Z_AXIS_LENGTH:
+            PERS::setZAxisLengthMillimeters(data.toInt());
+            break;
+        case SC::ReceivedCommand::SET_MAX_LOAD:
+            PERS::setMaxLoad(data.toDouble());
+            break;
+        case SC::ReceivedCommand::SET_MAX_TRAVEL:
+            PERS::setMaxTravel(data.toInt());
+            break;
+        case SC::ReceivedCommand::SET_MAX_DELTA_LOAD:
+            PERS::setMaxDeltaLoad(data.toDouble());
+            break;
+        case SC::ReceivedCommand::STOP:
+            stepperMotor.stopMotor();
+            STATE::currentState = STATE::StateEnum::IDLE;
+            break;
+        case SC::ReceivedCommand::TARE_LOAD:
+            loadCell.tare();
+            break;
+        case SC::ReceivedCommand::GET_DELTA_LOAD:
+            SC::sendMessage(SC::SentMessage::CURRENT_DELTA_LOAD, String(loadCell.getDeltaLoad()));
+            break;
+        default:
+            SC::sendMessage(SC::SentMessage::ERROR, "Invalid command");
+            break;
     }
+    SC::sendSerialBuffer();
 }
 
 void process() {
-    /*
-    // Check if delta load is bigger than the maximum allowed
-    //Serial.print(PERS::getMaxDeltaLoad() + " " + loadCell.getDeltaLoad());
-    if (loadCell.getDeltaLoad() > PERS::getMaxDeltaLoad()) {
-        stepperMotor.stopMotor();
-        STATE::currentState = STATE::StateEnum::IDLE;
-        SC::sendMessage(SC::SentMessage::ERROR, "Delta load is bigger than the maximum allowed");
-    }
-
-    // Check current load does not exceed the maximum allowed
-    if (loadCell.getInstaneousReading() > PERS::getMaxLoad()) {
-        stepperMotor.stopMotor();
-        STATE::currentState = STATE::StateEnum::IDLE;
-        SC::sendMessage(SC::SentMessage::ERROR, "Load is bigger than the maximum allowed");
-    }
-
-
-    // Check if the stepper motor position is bigger than the maximum allowed
-    if (stepperMotor.getMotorPositionStepsMillimeters() > stepperMotor.zAxisLength) {
-        stepperMotor.stopMotor();
-        STATE::currentState = STATE::StateEnum::IDLE;
-        SC::sendMessage(SC::SentMessage::ERROR, "Position is bigger than the maximum allowed");
-    }
-    */
-
+    comTask();
     bool isOnTopSwitch = digitalRead(TOP_STOPPER_PIN);
     if (isOnTopSwitch != lastIsOnTopSwitch) {
         topStopInterrupt();

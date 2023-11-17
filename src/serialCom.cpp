@@ -20,7 +20,6 @@
 namespace SC {
 
 String serialBuffer = "";
-SemaphoreHandle_t serialBufferMutex;
 
 MessageStruct getCommand() {
     MessageStruct result;
@@ -113,18 +112,14 @@ MessageStruct getCommand() {
 }
 
 void addToSerialBuffer(String message) {
-    xSemaphoreTake(serialBufferMutex, portMAX_DELAY);
     SC::serialBuffer.concat(message);
-    xSemaphoreGive(serialBufferMutex);
 }
 
 void sendSerialBuffer() {
-    xSemaphoreTake(serialBufferMutex, portMAX_DELAY);
     if (SC::serialBuffer.length()) {
         Serial.print(SC::serialBuffer);
         SC::serialBuffer.clear();
     }
-    xSemaphoreGive(serialBufferMutex);
 }
 
 void sendMessage(SentMessage message, String data) {
@@ -162,7 +157,7 @@ void sendMessage(SentMessage message, String data) {
             break;
         default:
             messageCode = "e";
-            data += " - Mensagem não reconhecida"; 
+            data += " - Mensagem não reconhecida";
             break;
     }
     addToSerialBuffer(messageCode + data + "\n");
@@ -173,10 +168,6 @@ void setup() {
     Serial.setTimeout(10);
     while (!Serial)
         delay(10);
-    serialBufferMutex = xSemaphoreCreateMutex();
-    while (serialBufferMutex == NULL) {
-        sendMessage(SentMessage::ERROR, "Nao foi possível criar o mutex");
-    }
 }
 
 }  // namespace SC

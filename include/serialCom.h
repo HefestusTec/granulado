@@ -68,7 +68,6 @@ String readSerialMessage();
 MessageStruct getCommand();
 
 extern String serialBuffer;
-extern SemaphoreHandle_t serialBufferMutex;
 
 void addToSerialBuffer();
 
