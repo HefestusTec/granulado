@@ -24,15 +24,20 @@ LoadCell::LoadCell(/* args */) {
 
 void LoadCell::tare() {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "tare");
+    calibrationFactor = PERS::getCalibrationFactor();
     scale.set_scale();
     scale.tare();  // Reset the scale to 0
+
+    scale.set_scale(calibrationFactor);
 }
 
 void LoadCell::calibrateKnownWeight() {
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrateKnownWeight");
+    scale.set_scale();
     STATE::currentState = STATE::StateEnum::CALIBRATING_KNOWN_WEIGHT;
-    float knownWeight = PERS::getLoadCellKnownWeight();  // Get the known weight from EEPROM
-    float calibrationFactor = scale.get_units(10) / (knownWeight / 1000);
+    int knownWeight = PERS::getLoadCellKnownWeight();  // Get the known weight from EEPROM
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrateKnownWeight" + String(knownWeight));
+    calibrationFactor = scale.get_units(10) / (knownWeight / 1000.f);
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrationFactor" + String(calibrationFactor));
     PERS::setCalibrationFactor(calibrationFactor);  // Save calibration factor to EEPROM
     scale.set_scale(calibrationFactor);             // Adjust to this calibration factor
     STATE::currentState = STATE::StateEnum::IDLE;
