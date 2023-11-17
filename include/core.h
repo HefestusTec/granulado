@@ -31,7 +31,7 @@ void setup();
 
 void process();  // Runs on the main core
 
-void comTask(void* parameter);  // Is setup to run on the second core
+void comTask();  // Is setup to run on the second core
 
 void topStopInterrupt();
 void bottomStopInterrupt();
