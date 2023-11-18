@@ -39,8 +39,8 @@ void bottomStopInterrupt() {
 
 void setup() {
     // Configure stopper pin to read HIGH unless grounded
-    pinMode(TOP_STOPPER_PIN, INPUT_PULLUP);
-    pinMode(BOTTOM_STOPPER_PIN, INPUT_PULLUP);
+    pinMode(TOP_STOPPER_PIN, INPUT);
+    pinMode(BOTTOM_STOPPER_PIN, INPUT);
     // Attach interrupt to top sensor
     // attachInterrupt(TOP_STOPPER_PIN, topStopInterrupt, FALLING);
     // // Attach interrupt to bottom sensor
@@ -79,7 +79,7 @@ void comTask() {
             stepperMotor.moveToTop();
             break;
         case SC::ReceivedCommand::MOVE_X_MM:
-            stepperMotor.moveMillimeters(data.toInt());
+            stepperMotor.moveSteps(data.toInt());
             break;
         case SC::ReceivedCommand::PING:
             SC::sendMessage(SC::SentMessage::PING_RESPONSE, "");
@@ -108,6 +108,9 @@ void comTask() {
             break;
         case SC::ReceivedCommand::GET_DELTA_LOAD:
             SC::sendMessage(SC::SentMessage::CURRENT_DELTA_LOAD, String(loadCell.getDeltaLoad()));
+            break;
+        case SC::ReceivedCommand::SET_MOTOR_RPM:
+            stepperMotor.setMotorRPM(data.toInt());
             break;
         default:
             SC::sendMessage(SC::SentMessage::ERROR, "Invalid command");

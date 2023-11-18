@@ -38,19 +38,18 @@ class StepperMotor {
     StepperMotor();
     void moveToTop();
     void moveToBottom();
-    void moveMillimeters(int distance);
+    void moveSteps(int steps);
     int getMotorPositionStepsMillimeters();
+    void setMotorRPM(int rpm);
     void calibrate();
     void calibrateProcess();
     void checkStop();
     long stopMotor();
     void setup();
 
-
     void process();
 
     void reachedInterrupt(GLOBAL::EndTravelPos topOrBottom);
-
 
     long int motorPositionSteps = 0;
     long int microsStepsByMillimeter = 0;
@@ -61,6 +60,7 @@ class StepperMotor {
    private:
     long int lastRelativePositionSteps = 0;
     long int zAxisSizeInSteps = 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS;
+    int rpm = 30;
 
     BasicStepperDriver stepper;
 };

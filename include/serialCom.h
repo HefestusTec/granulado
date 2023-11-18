@@ -44,6 +44,7 @@ enum class ReceivedCommand {
     SET_MAX_LOAD = 'l',
     SET_MAX_TRAVEL = 'v',
     SET_MAX_DELTA_LOAD = 'a',
+    SET_MOTOR_RPM = 'e',
 };
 
 enum class SentMessage {

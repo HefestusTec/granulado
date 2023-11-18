@@ -62,16 +62,16 @@ void StepperMotor::moveToBottom() {
     stepper.startMove(INT_MIN);
 }
 
-void StepperMotor::moveMillimeters(int distance) {
+void StepperMotor::moveSteps(int steps) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveSteps: " + String(steps) + " steps");
     /*
-    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveMillimeters: " + String(distance) + " mm");
     if (distance >= 0 ? digitalRead(BOTTOM_STOPPER_PIN) : digitalRead(TOP_STOPPER_PIN)) {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "Motor already at end");
         return;
     }
     */
     stepper.disable();
-    stepper.startMove(distance);
+    stepper.startMove(steps * MOTOR_MICROS_STEPS);
 }
 
 int StepperMotor::getMotorPositionStepsMillimeters() {
@@ -123,18 +123,27 @@ long int StepperMotor::stopMotor() {
 
 void StepperMotor::setup() {
     // Initialize stepper motor
-    stepper.begin(MOTOR_RPM, MOTOR_MICROS_STEPS);
+    stepper.begin(rpm, MOTOR_MICROS_STEPS);
 
     microsStepsByMillimeter = PERS::getMicrosStepsByMillimeter();
     zAxisSizeInSteps = PERS::getMaxMicrosStepsTravel();
     zAxisLength = PERS::getZAxisLengthMillimeters();
 
     stepper.disable();
-    // delay(1000);
+}
+
+void StepperMotor::setMotorRPM(int _rpm) {
+    rpm = _rpm;
+
+    stepper.setRPM(rpm);
 }
 
 void StepperMotor::process() {
-    stepper.nextAction();
+    unsigned wait_time_micros = stepper.nextAction();
+
+    if (wait_time_micros <= 0) {
+        stepper.enable();
+    }
 }
 
 }  // namespace SM
