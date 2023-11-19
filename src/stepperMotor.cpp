@@ -71,7 +71,7 @@ void StepperMotor::moveSteps(int steps) {
     }
     */
     stepper.disable();
-    stepper.startMove(steps * MOTOR_MICROS_STEPS);
+    stepper.startMove(steps);
 }
 
 int StepperMotor::getMotorPositionStepsMillimeters() {
