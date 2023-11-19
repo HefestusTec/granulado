@@ -30,7 +30,7 @@
 // Stepper motor steps
 #define MOTOR_STEPS 200
 #define MOTOR_MICROS_STEPS 64
-#define MOTOR_RPM 120
+#define MOTOR_RPM 30
 
 #define LOAD_CELL_DOUT_PIN 16
 #define LOAD_CELL_SCK_PIN 17

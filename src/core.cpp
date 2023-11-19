@@ -27,6 +27,8 @@ bool wasCalibrating = false;
 bool lastIsOnTopSwitch = false;
 bool lastIsOnBottomSwitch = false;
 
+ExperimentLimits expLimits;
+
 void topStopInterrupt() {
     stepperMotor.reachedInterrupt(GLOBAL::EndTravelPos::TOP);
     SC::sendMessage(SC::SentMessage::TRIGGERED_TOP_INTERRUPT, "");
@@ -70,6 +72,7 @@ void comTask() {
             SC::sendMessage(SC::SentMessage::CURRENT_POSITION, String(stepperMotor.getMotorPositionStepsMillimeters()));
             break;
         case SC::ReceivedCommand::GET_READINGS:
+            loadCell.updateReadings();
             SC::sendMessage(SC::SentMessage::CURRENT_READING, String(loadCell.getInstantaneousReading(), 5));
             break;
         case SC::ReceivedCommand::GET_Z_AXIS_LENGTH:
@@ -92,12 +95,15 @@ void comTask() {
             break;
         case SC::ReceivedCommand::SET_MAX_LOAD:
             PERS::setMaxLoad(data.toDouble());
+            expLimits.maxLoad = data.toDouble();
             break;
         case SC::ReceivedCommand::SET_MAX_TRAVEL:
             PERS::setMaxTravel(data.toInt());
+            expLimits.maxTravel = data.toInt();
             break;
         case SC::ReceivedCommand::SET_MAX_DELTA_LOAD:
             PERS::setMaxDeltaLoad(data.toDouble());
+            expLimits.maxDeltaLoad = data.toDouble();
             break;
         case SC::ReceivedCommand::STOP:
             stepperMotor.stopMotor();
@@ -119,6 +125,23 @@ void comTask() {
     SC::sendSerialBuffer();
 }
 
+void checkStopParams(){
+    if(loadCell.getInstantaneousReading()> expLimits.maxLoad){
+        stepperMotor.stopMotor();
+        return;
+    }
+    if(loadCell.getDeltaLoad() > expLimits.maxDeltaLoad ){
+        stepperMotor.stopMotor();
+        return;
+    }
+    if(stepperMotor.getMotorPositionStepsMillimeters() > expLimits.maxTravel ){
+        stepperMotor.stopMotor();
+        return;
+    }
+
+}
+
+
 void process() {
     comTask();
     bool isOnTopSwitch = digitalRead(TOP_STOPPER_PIN);
@@ -133,7 +156,9 @@ void process() {
         lastIsOnBottomSwitch = isOnBottomSwitch;
     }
 
-    stepperMotor.process();
+    if(stepperMotor.process()){
+        checkStopParams();
+    }
 
     switch (STATE::currentState) {
         case STATE::StateEnum::CALIBRATING_Z_AXIS:

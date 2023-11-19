@@ -24,7 +24,7 @@ StepperMotor::StepperMotor() : stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS, EN_PLUS) {
 
 void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
     stopMotor();
-    /*
+    
     if (topOrBottom == GLOBAL::EndTravelPos::TOP) {
         if (calibrationState == CalibratingState::MOVING_TO_TOP) {
             calibrationState = CalibratingState::MOVING_TO_BOTTOM;
@@ -36,10 +36,10 @@ void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
         if (calibrationState == CalibratingState::MOVING_TO_BOTTOM) {
             calibrationState = CalibratingState::FINISHED;
             zAxisSizeInSteps = motorPositionSteps;  // Sets the top as 0
-            moveMillimeters(-10);
+            moveSteps(-50);
         }
     }
-    */
+    
 }
 
 void StepperMotor::moveToTop() {
@@ -48,8 +48,7 @@ void StepperMotor::moveToTop() {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop: Already at top");
         return;
     }
-    stepper.disable();
-    stepper.startMove(INT_MAX);
+    moveSteps(INT_MIN);
 }
 
 void StepperMotor::moveToBottom() {
@@ -58,18 +57,17 @@ void StepperMotor::moveToBottom() {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom: Already at bottom");
         return;
     }
-    stepper.disable();
-    stepper.startMove(INT_MIN);
+    moveSteps(INT_MAX);
 }
 
 void StepperMotor::moveSteps(int steps) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveSteps: " + String(steps) + " steps");
-    /*
-    if (distance >= 0 ? digitalRead(BOTTOM_STOPPER_PIN) : digitalRead(TOP_STOPPER_PIN)) {
+    
+    if (steps >= 0 ? !digitalRead(BOTTOM_STOPPER_PIN) : !digitalRead(TOP_STOPPER_PIN)) {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "Motor already at end");
         return;
     }
-    */
+    
     stepper.disable();
     stepper.startMove(steps);
 }
@@ -124,6 +122,7 @@ long int StepperMotor::stopMotor() {
 void StepperMotor::setup() {
     // Initialize stepper motor
     stepper.begin(rpm, MOTOR_MICROS_STEPS);
+    stepper.setSpeedProfile(BasicStepperDriver::LINEAR_SPEED, 50, 500);
 
     microsStepsByMillimeter = PERS::getMicrosStepsByMillimeter();
     zAxisSizeInSteps = PERS::getMaxMicrosStepsTravel();
@@ -138,12 +137,14 @@ void StepperMotor::setMotorRPM(int _rpm) {
     stepper.setRPM(rpm);
 }
 
-void StepperMotor::process() {
+bool StepperMotor::process() {
     unsigned wait_time_micros = stepper.nextAction();
 
     if (wait_time_micros <= 0) {
         stepper.enable();
+        return false;
     }
+    return true;
 }
 
 }  // namespace SM

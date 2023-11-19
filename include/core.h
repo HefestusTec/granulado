@@ -27,6 +27,12 @@
 
 namespace CORE {
 
+struct ExperimentLimits{
+    double maxLoad;
+    int maxTravel;
+    double maxDeltaLoad;
+};
+
 void setup();
 
 void process();  // Runs on the main core
@@ -35,6 +41,10 @@ void comTask();  // Is setup to run on the second core
 
 void topStopInterrupt();
 void bottomStopInterrupt();
+
+void checkStopParams();
+
+extern ExperimentLimits expLimits;
 
 }  // namespace CORE
 

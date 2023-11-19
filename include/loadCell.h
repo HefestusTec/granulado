@@ -36,6 +36,7 @@ class LoadCell {
     void setup();
     double getTimeSinceStart();
     float getDeltaLoad();
+    void updateReadings();
 
    private:
     float updateDeltaLoad(float currentLoad);
@@ -43,6 +44,7 @@ class LoadCell {
     HX711 scale;
     float calibrationFactor = 1.0;
     float lastLoad = 0.0f;
+    float currentLoad = 0.0f;
     double lastReadingTime = 0.0f;
     float deltaLoad = 0.0f;
 };
