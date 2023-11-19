@@ -85,6 +85,9 @@ void comTask() {
         case SC::ReceivedCommand::MOVE_TO_TOP:
             stepperMotor.moveToTop();
             break;
+        case SC::ReceivedCommand::MOVE_TO_BOTTOM:
+            stepperMotor.moveToBottom();
+            break;
         case SC::ReceivedCommand::MOVE_X_MM:
             stepperMotor.moveSteps(data.toInt());
             break;

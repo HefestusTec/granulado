@@ -44,20 +44,20 @@ void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
 
 void StepperMotor::moveToTop() {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop");
-    if (digitalRead(TOP_STOPPER_PIN)) {
+    if (!digitalRead(TOP_STOPPER_PIN)) {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop: Already at top");
         return;
     }
-    moveSteps(INT_MIN);
+    moveSteps(-1000000);
 }
 
 void StepperMotor::moveToBottom() {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom");
-    if (digitalRead(BOTTOM_STOPPER_PIN)) {
+    if (!digitalRead(BOTTOM_STOPPER_PIN)) {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom: Already at bottom");
         return;
     }
-    moveSteps(INT_MAX);
+    moveSteps(1000000);
 }
 
 void StepperMotor::moveSteps(int steps) {
@@ -80,6 +80,7 @@ void StepperMotor::calibrate() {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrate");
     STATE::currentState = STATE::StateEnum::CALIBRATING_Z_AXIS;
     calibrationState = CalibratingState::STARTED;
+    rpm = MOTOR_DEFAULT_RPM;
 }
 
 void StepperMotor::calibrateProcess() {
@@ -134,7 +135,7 @@ void StepperMotor::setup() {
 void StepperMotor::setMotorRPM(int _rpm) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMotorRPM: " + String(_rpm) + " RPM");
     rpm = _rpm;
-    
+
     stepper.setRPM((float)rpm);
 }
 
