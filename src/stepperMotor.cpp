@@ -132,9 +132,10 @@ void StepperMotor::setup() {
 }
 
 void StepperMotor::setMotorRPM(int _rpm) {
+    SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMotorRPM: " + String(_rpm) + " RPM");
     rpm = _rpm;
-
-    stepper.setRPM(rpm);
+    
+    stepper.setRPM((float)rpm);
 }
 
 bool StepperMotor::process() {

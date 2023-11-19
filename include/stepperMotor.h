@@ -61,7 +61,7 @@ class StepperMotor {
    private:
     long int lastRelativePositionSteps = 0;
     long int zAxisSizeInSteps = 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS;
-    int rpm = 30;
+    int rpm = 15;
 
     BasicStepperDriver stepper;
 };

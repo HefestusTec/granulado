@@ -51,6 +51,10 @@ MessageStruct getCommand() {
             result.command = ReceivedCommand::MOVE_TO_TOP;
             break;
 
+        case 'b':
+            result.command = ReceivedCommand::MOVE_TO_BOTTOM;
+            break;
+
         case 'g':
             result.command = ReceivedCommand::GET_POSITION;
             break;
@@ -101,6 +105,11 @@ MessageStruct getCommand() {
 
         case 'a':
             result.command = ReceivedCommand::SET_MAX_DELTA_LOAD;
+            result.data = comm.substring(1);
+            break;
+
+        case 'e':
+            result.command = ReceivedCommand::SET_MOTOR_RPM;
             result.data = comm.substring(1);
             break;
 

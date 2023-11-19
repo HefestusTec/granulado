@@ -33,6 +33,7 @@ enum class ReceivedCommand {
     GET_READINGS = 'r',
     GET_Z_AXIS_LENGTH = 'j',
     MOVE_TO_TOP = 't',
+    MOVE_TO_BOTTOM = 'b',
     MOVE_X_MM = 'm',
     NONE = '-',
     PING = 'p',

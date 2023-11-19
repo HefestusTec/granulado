@@ -52,6 +52,10 @@ void setup() {
     SC::setup();
     loadCell.setup();
     stepperMotor.setup();
+
+    expLimits.maxLoad = PERS::getMaxLoad();
+    expLimits.maxDeltaLoad = PERS::getMaxDeltaLoad();
+    expLimits.maxTravel = PERS::getMaxTravel();
 }
 
 void comTask() {
@@ -106,7 +110,9 @@ void comTask() {
             expLimits.maxDeltaLoad = data.toDouble();
             break;
         case SC::ReceivedCommand::STOP:
+            SC::sendMessage(SC::SentMessage::INFO_DEBUG, "Received Stop motor");
             stepperMotor.stopMotor();
+
             STATE::currentState = STATE::StateEnum::IDLE;
             break;
         case SC::ReceivedCommand::TARE_LOAD:
@@ -126,19 +132,16 @@ void comTask() {
 }
 
 void checkStopParams(){
-    if(loadCell.getInstantaneousReading()> expLimits.maxLoad){
-        stepperMotor.stopMotor();
+    if(loadCell.getInstantaneousReading() <= expLimits.maxLoad){
         return;
     }
-    if(loadCell.getDeltaLoad() > expLimits.maxDeltaLoad ){
-        stepperMotor.stopMotor();
+    if(loadCell.getDeltaLoad() <= expLimits.maxDeltaLoad ){
         return;
     }
-    if(stepperMotor.getMotorPositionStepsMillimeters() > expLimits.maxTravel ){
-        stepperMotor.stopMotor();
+    if(stepperMotor.getMotorPositionStepsMillimeters() <= expLimits.maxTravel ){
         return;
     }
-
+    stepperMotor.stopMotor();
 }
 
 
@@ -157,6 +160,10 @@ void process() {
     }
 
     if(stepperMotor.process()){
+        /*
+            Reset to global max after ending an experiment
+        */
+
         checkStopParams();
     }
 
