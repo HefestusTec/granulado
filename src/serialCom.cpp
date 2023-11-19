@@ -26,9 +26,11 @@ MessageStruct getCommand() {
     result.command = ReceivedCommand::NONE;
     result.data = "";
 
-    if (Serial.available() == 0) return result;
-
     // decode utf-8
+
+    if(!Serial.available())
+        return result;
+
     String comm = Serial.readStringUntil('\n');
 
     char cmd = comm.charAt(0);
@@ -52,6 +54,7 @@ MessageStruct getCommand() {
             break;
 
         case 'b':
+            SC::sendMessage(SC::SentMessage::INFO_DEBUG, "Recceived moveToBottom");
             result.command = ReceivedCommand::MOVE_TO_BOTTOM;
             break;
 
@@ -117,6 +120,7 @@ MessageStruct getCommand() {
             result.command = ReceivedCommand::NONE;
             break;
     };
+
     return result;
 }
 
@@ -174,7 +178,7 @@ void sendMessage(SentMessage message, String data) {
 
 void setup() {
     Serial.begin(115200);
-    Serial.setTimeout(10);
+    Serial.setTimeout(100);
     while (!Serial)
         delay(10);
 }

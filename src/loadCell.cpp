@@ -88,5 +88,5 @@ void LoadCell::setup() {
     scale.begin(LOAD_CELL_DOUT_PIN, LOAD_CELL_SCK_PIN);
     scale.power_up();
     scale.set_scale(calibrationFactor);  // this value is obtained by calibrating the scale with known weights; see the README for details
-}
+}   
 }  // namespace LC

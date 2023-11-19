@@ -48,7 +48,7 @@ class StepperMotor {
     void setup();
 
     // Returns true if is moving
-    bool process();
+    unsigned process();
 
     void reachedInterrupt(GLOBAL::EndTravelPos topOrBottom);
 

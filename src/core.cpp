@@ -135,40 +135,47 @@ void comTask() {
 }
 
 void checkStopParams(){
-    if(loadCell.getInstantaneousReading() <= expLimits.maxLoad){
+    if(loadCell.getInstantaneousReading() > expLimits.maxLoad){
+        stepperMotor.stopMotor();
         return;
     }
-    if(loadCell.getDeltaLoad() <= expLimits.maxDeltaLoad ){
+    if(loadCell.getDeltaLoad() > expLimits.maxDeltaLoad ){
+        stepperMotor.stopMotor();
         return;
     }
-    if(stepperMotor.getMotorPositionStepsMillimeters() <= expLimits.maxTravel ){
+    if(stepperMotor.getMotorPositionStepsMillimeters() > expLimits.maxTravel ){
+        stepperMotor.stopMotor();
         return;
     }
-    stepperMotor.stopMotor();
+    return;
 }
 
 
 void process() {
-    comTask();
     bool isOnTopSwitch = digitalRead(TOP_STOPPER_PIN);
     if (isOnTopSwitch != lastIsOnTopSwitch) {
-        topStopInterrupt();
+        if (isOnTopSwitch)
+            topStopInterrupt();
         lastIsOnTopSwitch = isOnTopSwitch;
     }
 
     bool isOnBottomSwitch = digitalRead(BOTTOM_STOPPER_PIN);
     if (isOnBottomSwitch != lastIsOnBottomSwitch) {
-        bottomStopInterrupt();
+        if (isOnBottomSwitch)
+            bottomStopInterrupt();
         lastIsOnBottomSwitch = isOnBottomSwitch;
     }
-
-    if(stepperMotor.process()){
+    unsigned wait_time_micros = stepperMotor.process();
+    
+    if(wait_time_micros){
         /*
             Reset to global max after ending an experiment
         */
-
         checkStopParams();
     }
+
+    comTask();
+    
 
     switch (STATE::currentState) {
         case STATE::StateEnum::CALIBRATING_Z_AXIS:

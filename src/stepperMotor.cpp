@@ -44,19 +44,19 @@ void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
 
 void StepperMotor::moveToTop() {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop");
-    if (!digitalRead(TOP_STOPPER_PIN)) {
-        SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop: Already at top");
-        return;
-    }
+    // if (!digitalRead(TOP_STOPPER_PIN)) {
+    //     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop: Already at top");
+    //     return;
+    // }
     moveSteps(-1000000);
 }
 
 void StepperMotor::moveToBottom() {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom");
-    if (!digitalRead(BOTTOM_STOPPER_PIN)) {
-        SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom: Already at bottom");
-        return;
-    }
+    // if (!digitalRead(BOTTOM_STOPPER_PIN)) {
+    //     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom: Already at bottom");
+    //     return;
+    // }
     moveSteps(1000000);
 }
 
@@ -139,14 +139,13 @@ void StepperMotor::setMotorRPM(int _rpm) {
     stepper.setRPM((float)rpm);
 }
 
-bool StepperMotor::process() {
+unsigned StepperMotor::process() {
     unsigned wait_time_micros = stepper.nextAction();
 
     if (wait_time_micros <= 0) {
         stepper.enable();
-        return false;
     }
-    return true;
+    return wait_time_micros;
 }
 
 }  // namespace SM
