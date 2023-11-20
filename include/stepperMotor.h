@@ -18,7 +18,8 @@
 #ifndef STEPPER_MOTOR_H
 #define STEPPER_MOTOR_H
 
-#include <BasicStepperDriver.h>
+#include <ESP_FlexyStepper.h>
+
 
 #include "globals.h"
 #include "persist.h"
@@ -48,7 +49,7 @@ class StepperMotor {
     void setup();
 
     // Returns true if is moving
-    unsigned process();
+    long process();
 
     void reachedInterrupt(GLOBAL::EndTravelPos topOrBottom);
 
@@ -59,11 +60,14 @@ class StepperMotor {
     CalibratingState calibrationState = CalibratingState::FINISHED;
 
    private:
+    void disableMotor();
+    void enableMotor();
+
     long int lastRelativePositionSteps = 0;
     long int zAxisSizeInSteps = 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS;
     int rpm = 15;
 
-    BasicStepperDriver stepper;
+    ESP_FlexyStepper stepper;
 };
 }  // namespace SM
 

@@ -19,8 +19,8 @@
 #include "core.h"
 
 void setup() {
-    pinMode(CW_PLUS, OUTPUT);
-    pinMode(CP_PLUS, OUTPUT);
+    pinMode(MOTOR_STEP_PIN, OUTPUT);
+    pinMode(MOTOR_DIRECTION_PIN, OUTPUT);
     pinMode(EN_PLUS, OUTPUT);
 
     CORE::setup();
