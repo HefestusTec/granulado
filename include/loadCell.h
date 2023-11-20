@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "persist.h"
 #include "serialCom.h"
-#include "state.h"
 
 namespace LC {
 

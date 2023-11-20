@@ -69,9 +69,6 @@ void comTask() {
         case SC::ReceivedCommand::CALIBRATE_KNOWN_WEIGHT:
             loadCell.calibrateKnownWeight();
             break;
-        case SC::ReceivedCommand::CALIBRATE_Z_AXIS:
-            stepperMotor.calibrate();
-            break;
         case SC::ReceivedCommand::GET_POSITION:
             SC::sendMessage(SC::SentMessage::CURRENT_POSITION, String(stepperMotor.getMotorPositionStepsMillimeters()));
             break;
@@ -115,8 +112,6 @@ void comTask() {
         case SC::ReceivedCommand::STOP:
             SC::sendMessage(SC::SentMessage::INFO_DEBUG, "Received Stop motor");
             stepperMotor.stopMotor();
-
-            STATE::currentState = STATE::StateEnum::IDLE;
             break;
         case SC::ReceivedCommand::TARE_LOAD:
             loadCell.tare();
@@ -134,22 +129,21 @@ void comTask() {
     SC::sendSerialBuffer();
 }
 
-void checkStopParams(){
-    if(loadCell.getInstantaneousReading() > expLimits.maxLoad){
+void checkStopParams() {
+    if (loadCell.getInstantaneousReading() > expLimits.maxLoad) {
         stepperMotor.stopMotor();
         return;
     }
-    if(loadCell.getDeltaLoad() > expLimits.maxDeltaLoad ){
+    if (loadCell.getDeltaLoad() > expLimits.maxDeltaLoad) {
         stepperMotor.stopMotor();
         return;
     }
-    if(stepperMotor.getMotorPositionStepsMillimeters() > expLimits.maxTravel ){
+    if (stepperMotor.getMotorPositionStepsMillimeters() > expLimits.maxTravel) {
         stepperMotor.stopMotor();
         return;
     }
     return;
 }
-
 
 void process() {
     bool isOnTopSwitch = digitalRead(TOP_STOPPER_PIN);
@@ -165,25 +159,13 @@ void process() {
             bottomStopInterrupt();
         lastIsOnBottomSwitch = isOnBottomSwitch;
     }
-    unsigned wait_time_micros = stepperMotor.process();
-    
-    if(wait_time_micros){
-        /*
-            Reset to global max after ending an experiment
-        */
+    bool motorIsMoving = stepperMotor.process();
+
+    if (motorIsMoving) {
         checkStopParams();
     }
 
     comTask();
-    
-
-    switch (STATE::currentState) {
-        case STATE::StateEnum::CALIBRATING_Z_AXIS:
-            stepperMotor.calibrateProcess();
-            break;
-        default:
-            break;
-    }
 }
 
 }  // namespace CORE

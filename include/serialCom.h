@@ -28,7 +28,6 @@ namespace SC {
 
 enum class ReceivedCommand {
     CALIBRATE_KNOWN_WEIGHT = 'w',
-    CALIBRATE_Z_AXIS = 'z',
     GET_POSITION = 'g',
     GET_READINGS = 'r',
     GET_Z_AXIS_LENGTH = 'j',

@@ -22,7 +22,6 @@
 #include "loadCell.h"
 #include "persist.h"
 #include "serialCom.h"
-#include "state.h"
 #include "stepperMotor.h"
 
 namespace CORE {
