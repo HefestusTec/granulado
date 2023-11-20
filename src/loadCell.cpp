@@ -33,21 +33,18 @@ void LoadCell::tare() {
 
 void LoadCell::calibrateKnownWeight() {
     scale.set_scale();
-    STATE::currentState = STATE::StateEnum::CALIBRATING_KNOWN_WEIGHT;
     int knownWeight = PERS::getLoadCellKnownWeight();  // Get the known weight from EEPROM
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrateKnownWeight" + String(knownWeight));
     calibrationFactor = scale.get_units(10) / (knownWeight / 1000.f);
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "calibrationFactor" + String(calibrationFactor));
     PERS::setCalibrationFactor(calibrationFactor);  // Save calibration factor to EEPROM
     scale.set_scale(calibrationFactor);             // Adjust to this calibration factor
-    STATE::currentState = STATE::StateEnum::IDLE;
 }
 
-void LoadCell::updateReadings(){
+void LoadCell::updateReadings() {
     currentLoad = scale.get_units(1);  // Get current load in grams
     deltaLoad = updateDeltaLoad(currentLoad);
 }
-
 
 float LoadCell::getInstantaneousReading() {
     return currentLoad;
@@ -88,5 +85,5 @@ void LoadCell::setup() {
     scale.begin(LOAD_CELL_DOUT_PIN, LOAD_CELL_SCK_PIN);
     scale.power_up();
     scale.set_scale(calibrationFactor);  // this value is obtained by calibrating the scale with known weights; see the README for details
-}   
+}
 }  // namespace LC

@@ -28,7 +28,7 @@ MessageStruct getCommand() {
 
     // decode utf-8
 
-    if(!Serial.available())
+    if (!Serial.available())
         return result;
 
     String comm = Serial.readStringUntil('\n');
@@ -86,10 +86,6 @@ MessageStruct getCommand() {
 
         case 'j':
             result.command = ReceivedCommand::GET_Z_AXIS_LENGTH;
-            break;
-
-        case 'z':
-            result.command = ReceivedCommand::CALIBRATE_Z_AXIS;
             break;
 
         case 'd':

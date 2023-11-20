@@ -20,19 +20,11 @@
 
 #include <ESP_FlexyStepper.h>
 
-
 #include "globals.h"
 #include "persist.h"
 #include "serialCom.h"
-#include "state.h"
 
 namespace SM {
-enum class CalibratingState {
-    STARTED,
-    MOVING_TO_TOP,
-    MOVING_TO_BOTTOM,
-    FINISHED
-};
 
 class StepperMotor {
    public:
@@ -42,9 +34,6 @@ class StepperMotor {
     void moveSteps(int steps);
     long getMotorPositionStepsMillimeters();
     void setMotorRPM(int rpm);
-    void calibrate();
-    void calibrateProcess();
-    void checkStop();
     long stopMotor();
     void setup();
 
@@ -56,19 +45,14 @@ class StepperMotor {
     long microsStepsByMillimeter = 0;
     int zAxisLength = -1;
 
-    CalibratingState calibrationState = CalibratingState::FINISHED;
-
    private:
     void disableMotor();
     void enableMotor();
 
-    long homePositionSteps = 0;
     long motorPositionSteps = 0;
     long startOfExperimentPositionSteps = 0;
     long zAxisSizeInSteps = 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS;
     int rpm = 15;
-
-
 
     ESP_FlexyStepper stepper;
 };
