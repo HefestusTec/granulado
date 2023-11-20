@@ -60,14 +60,14 @@ void StepperMotor::moveSteps(int steps) {
         return;
     }
 
-    startOfExperimentPositionSteps = stepper.getCurrentPositionInSteps();
+    startOfMovementPositionSteps = stepper.getCurrentPositionInSteps();
 
     enableMotor();
     stepper.setTargetPositionRelativeInSteps(steps);
 }
 
 long StepperMotor::getMotorPositionStepsMillimeters() {
-    return motorPositionSteps;
+    return stepper.getCurrentPositionInSteps() - startOfMovementPositionSteps;
 }
 
 long int StepperMotor::stopMotor() {
@@ -102,14 +102,13 @@ void StepperMotor::setMotorRPM(int _rpm) {
     stepper.setSpeedInStepsPerSecond((MOTOR_STEPS * rpm) / 60.0);
 }
 
-long StepperMotor::process() {
-    long wait_time_micros = stepper.getDistanceToTargetSigned();
+bool StepperMotor::process() {
+    bool distanceToTarget = stepper.getDistanceToTargetSigned();
 
-    if (wait_time_micros == 0) {
+    if (distanceToTarget == 0) {
         disableMotor();
     }
-    motorPositionSteps = stepper.getCurrentPositionInSteps() - startOfExperimentPositionSteps;
-    return wait_time_micros;
+    return distanceToTarget;
 }
 
 }  // namespace SM

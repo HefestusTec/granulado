@@ -38,7 +38,7 @@ class StepperMotor {
     void setup();
 
     // Returns true if is moving
-    long process();
+    bool process();
 
     void reachedInterrupt(GLOBAL::EndTravelPos topOrBottom);
 
@@ -49,8 +49,7 @@ class StepperMotor {
     void disableMotor();
     void enableMotor();
 
-    long motorPositionSteps = 0;
-    long startOfExperimentPositionSteps = 0;
+    long startOfMovementPositionSteps = 0;
     long zAxisSizeInSteps = 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS;
     int rpm = 15;
 

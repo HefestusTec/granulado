@@ -159,9 +159,9 @@ void process() {
             bottomStopInterrupt();
         lastIsOnBottomSwitch = isOnBottomSwitch;
     }
-    long wait_time_micros = stepperMotor.process();
+    bool motorIsMoving = stepperMotor.process();
 
-    if (wait_time_micros) {
+    if (motorIsMoving) {
         checkStopParams();
     }
 
