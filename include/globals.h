@@ -18,19 +18,24 @@
 #ifndef GLOBAL_CONSTS_H
 #define GLOBAL_CONSTS_H
 
-// Stepper motor pins
-#define CP_PLUS 13
-// Clockwise pins
-#define CW_PLUS 12
+// Stepper motor pins CP
+#define MOTOR_STEP_PIN 13
+// Clockwise pins CW
+#define MOTOR_DIRECTION_PIN 12
 // Enable pins
 #define EN_PLUS 14
 
 #define TOP_STOPPER_PIN 4
 #define BOTTOM_STOPPER_PIN 15
 // Stepper motor steps
-#define MOTOR_STEPS 200
 #define MOTOR_MICROS_STEPS 64
+
+#define MOTOR_STEPS 200 * MOTOR_MICROS_STEPS
+
 #define MOTOR_DEFAULT_RPM 15
+
+#define ACCELERATION_IN_STEPS_PER_SECOND 2000
+#define DECELERATION_IN_STEPS_PER_SECOND 2000
 
 #define LOAD_CELL_DOUT_PIN 16
 #define LOAD_CELL_SCK_PIN 17

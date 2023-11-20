@@ -19,7 +19,8 @@
 
 namespace SM {
 
-StepperMotor::StepperMotor() : stepper(MOTOR_STEPS, CW_PLUS, CP_PLUS, EN_PLUS) {
+StepperMotor::StepperMotor() {
+
 }
 
 void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
@@ -48,7 +49,7 @@ void StepperMotor::moveToTop() {
     //     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToTop: Already at top");
     //     return;
     // }
-    moveSteps(-1000000);
+    moveSteps(-100000);
 }
 
 void StepperMotor::moveToBottom() {
@@ -57,7 +58,15 @@ void StepperMotor::moveToBottom() {
     //     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveToBottom: Already at bottom");
     //     return;
     // }
-    moveSteps(1000000);
+    moveSteps(100000);
+}
+
+void StepperMotor::disableMotor(){
+    digitalWrite(EN_PLUS, HIGH);
+}
+
+void StepperMotor::enableMotor(){
+    digitalWrite(EN_PLUS, LOW);
 }
 
 void StepperMotor::moveSteps(int steps) {
@@ -68,8 +77,8 @@ void StepperMotor::moveSteps(int steps) {
         return;
     }
     
-    stepper.disable();
-    stepper.startMove(steps);
+    enableMotor();
+    stepper.setTargetPositionRelativeInSteps(steps);
 }
 
 int StepperMotor::getMotorPositionStepsMillimeters() {
@@ -98,7 +107,7 @@ void StepperMotor::calibrateProcess() {
             break;
 
         case CalibratingState::FINISHED:
-            stepper.enable();
+            disableMotor();
             STATE::currentState = STATE::StateEnum::IDLE;
             microsStepsByMillimeter = zAxisSizeInSteps / PERS::getZAxisLengthMillimeters();
             PERS::setMicrosStepsByMillimeter(microsStepsByMillimeter);
@@ -111,39 +120,55 @@ void StepperMotor::calibrateProcess() {
 }
 
 long int StepperMotor::stopMotor() {
-    stepper.stop();
-    stepper.enable();
+    stepper.emergencyStop();
+    disableMotor();
     SC::sendMessage(SC::SentMessage::STOP_ALERT, "");
-    long int currentRelativeSteps = stepper.getStepsCompleted();
+    long int currentRelativeSteps = stepper.getCurrentPositionInSteps();
     motorPositionSteps += currentRelativeSteps - lastRelativePositionSteps;
     lastRelativePositionSteps = currentRelativeSteps;
     return currentRelativeSteps;
 }
 
-void StepperMotor::setup() {
+void StepperMotor::setup()  {
     // Initialize stepper motor
-    stepper.begin(rpm, MOTOR_MICROS_STEPS);
-    stepper.setSpeedProfile(BasicStepperDriver::LINEAR_SPEED, 50, 500);
-
+    
     microsStepsByMillimeter = PERS::getMicrosStepsByMillimeter();
     zAxisSizeInSteps = PERS::getMaxMicrosStepsTravel();
     zAxisLength = PERS::getZAxisLengthMillimeters();
 
-    stepper.disable();
+    stepper.connectToPins(MOTOR_STEP_PIN, MOTOR_DIRECTION_PIN); 
+    setMotorRPM(rpm);              
+    stepper.setAccelerationInStepsPerSecondPerSecond(ACCELERATION_IN_STEPS_PER_SECOND);
+    stepper.setDecelerationInStepsPerSecondPerSecond(DECELERATION_IN_STEPS_PER_SECOND);
+
+    disableMotor();
+
+    /*
+    //attach an interrupt to the IO pin of the ermegency stop switch and specify the handler function
+    attachInterrupt(digitalPinToInterrupt(EMERGENCY_STOP_PIN), emergencySwitchHandler, RISING);
+
+    //attach an interrupt to the IO pin of the limit switch and specify the handler function
+    attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCH_PIN), limitSwitchHandler, CHANGE);
+    */
+
+    // tell the ESP_flexystepper in which direction to move when homing is required (only works with a homing / limit switch connected)
+    // stepper.setDirectionToHome(-1);
+    
+    stepper.startAsService(0);
 }
 
 void StepperMotor::setMotorRPM(int _rpm) {
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "setMotorRPM: " + String(_rpm) + " RPM");
     rpm = _rpm;
 
-    stepper.setRPM((float)rpm);
+    stepper.setSpeedInStepsPerSecond((MOTOR_STEPS * rpm) / 60.0 );
 }
 
-unsigned StepperMotor::process() {
-    unsigned wait_time_micros = stepper.nextAction();
+long StepperMotor::process() {
+    long wait_time_micros = stepper.getDistanceToTargetSigned();
 
-    if (wait_time_micros <= 0) {
-        stepper.enable();
+    if (wait_time_micros == 0) {
+        disableMotor();
     }
     return wait_time_micros;
 }
