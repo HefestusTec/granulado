@@ -40,7 +40,7 @@ class StepperMotor {
     void moveToTop();
     void moveToBottom();
     void moveSteps(int steps);
-    int getMotorPositionStepsMillimeters();
+    long getMotorPositionStepsMillimeters();
     void setMotorRPM(int rpm);
     void calibrate();
     void calibrateProcess();
@@ -53,8 +53,7 @@ class StepperMotor {
 
     void reachedInterrupt(GLOBAL::EndTravelPos topOrBottom);
 
-    long int motorPositionSteps = 0;
-    long int microsStepsByMillimeter = 0;
+    long microsStepsByMillimeter = 0;
     int zAxisLength = -1;
 
     CalibratingState calibrationState = CalibratingState::FINISHED;
@@ -63,9 +62,13 @@ class StepperMotor {
     void disableMotor();
     void enableMotor();
 
-    long int lastRelativePositionSteps = 0;
-    long int zAxisSizeInSteps = 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS;
+    long homePositionSteps = 0;
+    long motorPositionSteps = 0;
+    long startOfExperimentPositionSteps = 0;
+    long zAxisSizeInSteps = 1000 * MOTOR_STEPS * MOTOR_MICROS_STEPS;
     int rpm = 15;
+
+
 
     ESP_FlexyStepper stepper;
 };

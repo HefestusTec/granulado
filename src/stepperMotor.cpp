@@ -29,14 +29,14 @@ void StepperMotor::reachedInterrupt(GLOBAL::EndTravelPos topOrBottom) {
     if (topOrBottom == GLOBAL::EndTravelPos::TOP) {
         if (calibrationState == CalibratingState::MOVING_TO_TOP) {
             calibrationState = CalibratingState::MOVING_TO_BOTTOM;
-            motorPositionSteps = 0;  // Sets the top as 0
+            homePositionSteps = stepper.getCurrentPositionInSteps();  // Sets the top as 0
             moveToBottom();
         }
     }
     if (topOrBottom == GLOBAL::EndTravelPos::BOTTOM) {
         if (calibrationState == CalibratingState::MOVING_TO_BOTTOM) {
             calibrationState = CalibratingState::FINISHED;
-            zAxisSizeInSteps = motorPositionSteps;  // Sets the top as 0
+            zAxisSizeInSteps = homePositionSteps - stepper.getCurrentPositionInSteps();  // Sets the top as 0
             moveSteps(-50);
         }
     }
@@ -76,13 +76,16 @@ void StepperMotor::moveSteps(int steps) {
         SC::sendMessage(SC::SentMessage::INFO_DEBUG, "Motor already at end");
         return;
     }
+
+    startOfExperimentPositionSteps = stepper.getCurrentPositionInSteps();
     
     enableMotor();
     stepper.setTargetPositionRelativeInSteps(steps);
 }
 
-int StepperMotor::getMotorPositionStepsMillimeters() {
-    return motorPositionSteps / microsStepsByMillimeter;
+long StepperMotor::getMotorPositionStepsMillimeters() {
+    return motorPositionSteps;
+
 }
 
 void StepperMotor::calibrate() {
@@ -124,8 +127,6 @@ long int StepperMotor::stopMotor() {
     disableMotor();
     SC::sendMessage(SC::SentMessage::STOP_ALERT, "");
     long int currentRelativeSteps = stepper.getCurrentPositionInSteps();
-    motorPositionSteps += currentRelativeSteps - lastRelativePositionSteps;
-    lastRelativePositionSteps = currentRelativeSteps;
     return currentRelativeSteps;
 }
 
@@ -170,6 +171,7 @@ long StepperMotor::process() {
     if (wait_time_micros == 0) {
         disableMotor();
     }
+    motorPositionSteps = stepper.getCurrentPositionInSteps() - startOfExperimentPositionSteps;
     return wait_time_micros;
 }
 
