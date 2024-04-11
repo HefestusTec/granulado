@@ -138,7 +138,7 @@ void checkStopParams() {
         stepperMotor.stopMotor();
         return;
     }
-    if (stepperMotor.getMotorPositionStepsMillimeters() > expLimits.maxTravel) {
+    if (abs(stepperMotor.getMotorPositionStepsMillimeters()) > expLimits.maxTravel) {
         stepperMotor.stopMotor();
         return;
     }
