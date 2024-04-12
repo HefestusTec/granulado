@@ -44,6 +44,7 @@ class StepperMotor {
 
     long microsStepsByMillimeter = 0;
     int zAxisLength = -1;
+    bool isCompress = true;
 
    private:
     void disableMotor();
