@@ -53,6 +53,7 @@ void StepperMotor::enableMotor() {
 }
 
 void StepperMotor::moveSteps(int steps) {
+    isCompress = steps >= 0;
     SC::sendMessage(SC::SentMessage::INFO_DEBUG, "moveSteps: " + String(steps) + " steps");
 
     if (steps >= 0 ? !digitalRead(BOTTOM_STOPPER_PIN) : !digitalRead(TOP_STOPPER_PIN)) {

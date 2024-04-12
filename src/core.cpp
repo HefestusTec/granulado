@@ -130,14 +130,17 @@ void comTask() {
 }
 
 void checkStopParams() {
-    if (loadCell.getInstantaneousReading() > expLimits.maxLoad) {
+    if (abs(loadCell.getInstantaneousReading()) > expLimits.maxLoad) {
         stepperMotor.stopMotor();
         return;
     }
-    if (loadCell.getDeltaLoad() > expLimits.maxDeltaLoad) {
+
+    if ((stepperMotor.isCompress && loadCell.getDeltaLoad() < -expLimits.maxDeltaLoad) ||
+        (!stepperMotor.isCompress && loadCell.getDeltaLoad() > expLimits.maxDeltaLoad)) {
         stepperMotor.stopMotor();
         return;
     }
+
     if (abs(stepperMotor.getMotorPositionStepsMillimeters()) > expLimits.maxTravel) {
         stepperMotor.stopMotor();
         return;
