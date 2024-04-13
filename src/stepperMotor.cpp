@@ -61,10 +61,16 @@ void StepperMotor::moveSteps(int steps) {
         return;
     }
 
-    startOfMovementPositionSteps = stepper.getCurrentPositionInSteps();
-
     enableMotor();
-    stepper.setTargetPositionRelativeInSteps(steps);
+    if (!isCompress) {
+        startOfMovementPositionSteps = 0;
+        stepper.setCurrentPositionInSteps(abs(steps));
+        stepper.setTargetPositionRelativeInSteps(0);
+    }
+    else {
+        startOfMovementPositionSteps = stepper.getCurrentPositionInSteps();
+        stepper.setTargetPositionRelativeInSteps(steps);
+    }
 }
 
 long StepperMotor::getMotorPositionStepsMillimeters() {
